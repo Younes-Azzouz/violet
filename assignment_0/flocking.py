@@ -11,10 +11,10 @@ import random
 @dataclass
 class FlockingConfig(Config):
     alignment_weight: float = 0.5
-    cohesion_weight: float = 0.30
+    cohesion_weight: float = 0.3
     separation_weight: float = 0.5
 
-    delta_time: float = 3
+    delta_time: float = 5
     mass: int = 10
 
     def weights(self) -> tuple[float, float, float]:
@@ -24,72 +24,29 @@ class FlockingConfig(Config):
 class Bird(Agent):
     config: FlockingConfig
 
-
-    # super.mass = random.randint(1, FlockingConfig().mass)
-
     def get_alignment_weigth(self ) -> float :
         return self.config.alignment_weight
 
 
     def change_position(self):
-        # Pac-man-style teleport to the other end of the screen when trying to escape
         self.there_is_no_escape()
         #YOUR CODE HERE -----------
         
         birds = list(self.in_proximity_accuracy()) # All birds in de proximity
 
-        # self.obstacle_intersections()
+        # -------------
 
-                # -------------
-
-        self._still_stuck = False
-
-        prng = self.shared.prng_move
-
-        # Always calculate the random angle so a seed could be used.
-        deg = prng.uniform(-30, 30)
-
-        # Only update angle if the agent was teleported to a different area of the simulation.
-        # if changed:
-        #     self.move.rotate_ip(deg)
-
-        # Obstacle Avoidance
         obstacle_hit = pg.sprite.spritecollideany(self, self._obstacles, pg.sprite.collide_mask)  # type: ignore
+
         collision = bool(obstacle_hit)
 
-        # Reverse direction when colliding with an obstacle.
-
-        if not collision:
-            self._still_stuck = False
-
-        deg = prng.uniform(-10, 10)
-
-        if collision and not self._still_stuck:
-            # self.move.rotate_ip(180)
-            self._still_stuck = True
-
-
-        
-        print("collision", collision)
-
-        print("stuck", self._still_stuck)
-
-        # Random opportunity to slightly change angle.
-        # Probabilities are pre-computed so a seed could be used.
-        deg = prng.uniform(-10, 10)
-
-        # Only allow the angle opportunity to take place when no collisions have occured.
-        # This is done so an agent always turns 180 degrees. Any small change in the number of degrees
-        # allows the agent to possibly escape the obstacle.
-        if collision and self._still_stuck:
-            self.move.rotate_ip(180)
+        if collision:
+            dif = self.pos - Vector2(x=375, y=375)
+            self.move += dif.normalize()/2
             collision = False
-            self._still_stuck = False
 
         # ----------------
 
-
-        
         if len(birds) > 0:
             ### ALIGNMENT ###
             velocities = Vector2() 
@@ -130,8 +87,6 @@ class Bird(Agent):
 
         if self.move.length() > max_velocity:
             self.move = self.move.normalize() * max_velocity
-        
-        print(self.move)
 
         self.pos += self.move * self.config.delta_time
 
@@ -175,9 +130,9 @@ class FlockingLive(Simulation):
         a, c, s = self.config.weights()
         # print(f"A: {a:.1f} - C: {c:.1f} - S: {s:.1f}")
 
-
+        
 (
-    FlockingLive(
+    FlockingLive(       
         FlockingConfig(
             image_rotation=True,
             movement_speed=1,
@@ -185,8 +140,8 @@ class FlockingLive(Simulation):
             seed=1, 
         )
     )
-    .batch_spawn_agents(1, Bird, images=["violet/assignment_0/images/bird.png"])
-    .spawn_obstacle(image_path="violet/assignment_0/images/triangle@200px.png", x=375, y=375)
+    .batch_spawn_agents(50, Bird, images=["violet/assignment_0/images/bird.png"])
+    .spawn_obstacle(image_path="violet/assignment_0/images/triangle@200px.png", x = 750 // 2 , y = 750 // 2)
     .run()
 )
 

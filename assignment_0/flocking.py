@@ -11,10 +11,11 @@ import random
 @dataclass
 class FlockingConfig(Config):
     alignment_weight: float = 0.5
-    cohesion_weight: float = 0.5
+    cohesion_weight: float = 0.30
     separation_weight: float = 0.5
 
-    delta_time: float = 3
+    delta_time: float = 4
+    mass: int = 10
 
     def weights(self) -> tuple[float, float, float]:
         return (self.alignment_weight, self.cohesion_weight, self.separation_weight)
@@ -23,7 +24,6 @@ class FlockingConfig(Config):
 class Bird(Agent):
     config: FlockingConfig
 
-    mass = random.randint(10, 25)
 
     # super.mass = random.randint(1, FlockingConfig().mass)
 
@@ -38,69 +38,50 @@ class Bird(Agent):
         
         birds = list(self.in_proximity_accuracy()) # All birds in de proximity
 
-        if len(birds) == 0:
-            self.pos += self.move
 
-        # Alignment
-        velocities = Vector2() 
-        for boid, _ in birds: # birds is a tuple containing the bird and the distance, we don't need the distance so _
-            velocities += boid.move 
         
         if len(birds) > 0:
+            ### ALIGNMENT ###
+            velocities = Vector2() 
+            for boid, _ in birds: 
+                velocities += boid.move 
             Vn = velocities/len(birds) 
             alignment = Vn - self.move 
             alignment = alignment.normalize()
-        else:
-            alignment = Vector2((0,0))
-        
-        # Seperation
-        positions = Vector2() 
-        for boid, _ in birds: # birds is a tuple containing the bird and the distance, we don't need the distance so _
-            positions += (self.pos - boid.pos)
 
-        if len(birds) > 0:
+
+            ### SEPERATION ###
+            positions = Vector2() 
+            for boid, _ in birds:
+                positions += (self.pos - boid.pos)
             seperation = positions/len(birds) 
             seperation = seperation.normalize()
-        else:
-            seperation = Vector2((0,0))
 
-        # Cohesion
-        average_position = Vector2((0,0))
-        for boid, _ in birds:
-            average_position += boid.pos
-        
-        if len(birds) > 0:
-            avg = average_position/len(birds) 
-            cohesion = (avg - self.pos) - self.move
+
+            ### COHESION ###
+            bird_positions = Vector2()
+            for boid, _ in birds:
+                bird_positions += boid.pos
+            average_positions = bird_positions/len(birds) 
+            cohesion = (average_positions - self.pos) - self.move
             cohesion = cohesion.normalize()
+
         else:
-            cohesion = Vector2((0,0))
+            alignment = Vector2((0,0))
+            seperation = Vector2((0,0))        
+            cohesion = Vector2((0,0))   
 
-        if len(birds) > 1:
-            # Adding everything together
-            a_weight, c_weight, s_weight = self.config.weights()
+        # Adding everything together
+        a_weight, c_weight, s_weight = self.config.weights()
+        max_velocity = 5
+        
+        Ftotal = ((s_weight * seperation) + (a_weight * alignment) + (c_weight * cohesion)) / self.config.mass # epsilon is beetje random bewegen
+        self.move += Ftotal
 
-            max_velocity = 2
-            
-            Ftotal = ((s_weight * seperation) + (a_weight * alignment) + (c_weight * cohesion)) # epsilon is beetje random bewegen
-            self.move += Ftotal
+        if self.move.length() > max_velocity:
+            self.move = self.move.normalize() * max_velocity
 
-            if self.move.length() > max_velocity:
-                self.move = self.move.normalize() * max_velocity
-    
-        # changed = self.there_is_no_escape()
-
-        # prng = self.shared.prng_move
-
-        # # Always calculate the random angle so a seed could be used.
-        # deg = prng.uniform(-30, 30)
-
-        # # Only update angle if the agent was teleported to a different area of the simulation.
-        # if changed:
-        #     self.move.rotate_ip(deg)
-        print(self.move)
-
-        self.pos += self.move
+        self.pos += self.move * self.config.delta_time
 
         #TEST
 
@@ -154,7 +135,7 @@ class FlockingLive(Simulation):
             seed=1,
         )
     )
-    .batch_spawn_agents(50, Bird, images=["assignment_0/images/bird.png", "assignment_0/images/red.png"])
+    .batch_spawn_agents(30, Bird, images=["violet/assignment_0/images/bird.png"])
     .run()
 )
 

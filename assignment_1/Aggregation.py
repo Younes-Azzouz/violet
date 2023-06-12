@@ -21,7 +21,7 @@ class FlockingConfig(Config):
         return (self.alignment_weight, self.cohesion_weight, self.separation_weight)
 
 
-class Bird(Agent):
+class Cockroach(Agent):
     config: FlockingConfig
 
     def get_alignment_weigth(self ) -> float :
@@ -140,8 +140,8 @@ class FlockingLive(Simulation):
             seed=1, 
         )
     )
-    .batch_spawn_agents(50, Bird, images=["assignment_0/images/bird.png"])
-    .spawn_obstacle(image_path="assignment_0/images/triangle@200px.png", x = 750 // 2 , y = 750 // 2)
+    .batch_spawn_agents(50, Cockroach, images=["assignment_0/images/bird.png"])
+    .spawn_obstacle(image_path="examples/images/site.png", x = 750 // 2 , y = 750 // 2)
     .run()
 )
 

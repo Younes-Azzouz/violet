@@ -5,11 +5,14 @@ from pygame.math import Vector2
 from vi import Agent, Simulation
 from vi.config import Config, dataclass, deserialize
 import random
+import numpy as np
 
 
 @deserialize
 @dataclass
 class AggregationConfig(Config):
+    proclivity_stay = 0.5
+    proclivity_leave = 0.5
     sensitivity = 0.5
 
     delta_time: float = 5
@@ -30,7 +33,9 @@ class Cockroach(Agent):
         #self.bump_and_freeze()
         # self.change_position()
         # self.hardcode_stop_onsite()
-        
+
+        self.wandering()
+        self.joining()
 
 
     def change_position(self):
@@ -40,13 +45,17 @@ class Cockroach(Agent):
 
 
     def wandering(self):
-        pass
+        self.move -= Vector2((np.random.normal(0, 0.2),np.random.normal(0, 0.2)))
+        self.move = self.move.normalize()
     def joining(self):
-        pass
+        if self.in_proximity_accuracy().without_distance().count() > 0:
+            for agent in self.in_proximity_accuracy().without_distance():
+                agent.move = Vector2((0,0))
+            self.move = Vector2((0,0))
     def still(self):
         pass
     def leaving(self):
-        pass
+        self.move = Vector2((random.uniform(-1, 1), random.uniform(-1, 1)))
     def hardcode_stop_onsite(self):
         if self.on_site_id() == 0 or self.on_site_id() == 1:
             print(self.on_site_id())
@@ -125,16 +134,17 @@ class AggregationLive(Simulation):
         # print(f"A: {a:.1f} - C: {c:.1f} - S: {s:.1f}")
 
         
+        
 (
     AggregationLive(       
         AggregationConfig(
             image_rotation=True,
             movement_speed=1,
-            radius=50,
+            radius=15,
             seed=1, 
         )
     )
-    .batch_spawn_agents(50, Cockroach, images=["assignment_0/images/bird.png"])
+    .batch_spawn_agents(10, Cockroach, images=["assignment_0/images/bird.png"])
     .spawn_site(image_path="examples/images/site.png", x = 130 , y = 375)
     .spawn_site(image_path="examples/images/site.png", x = 500 // 2 , y = 375)
     .run()

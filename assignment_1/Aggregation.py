@@ -26,12 +26,22 @@ class Cockroach(Agent):
     def get_alignment_weigth(self ) -> float :
         return self.config.alignment_weight
 
+    def update(self):
+        self.bump_and_freeze()
+        self.change_position()
+
     def change_position(self):
         self.bounce_back()
         self.pos += self.move * self.config.delta_time
+        print(self.move)
+        self.bump_and_freeze()
         
     def bump_and_freeze(self):
-        pass
+        for agent in self.in_proximity_accuracy().without_distance():
+            if(agent.move == Vector2((0,0))):
+                agent.move = Vector2((random.uniform(-1, 1),random.uniform(-1, 1)))
+            else:
+                agent.move = Vector2((0,0))
     def bounce_back(self):
         changed = False
         margin_x = 10

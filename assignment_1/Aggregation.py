@@ -24,9 +24,6 @@ class FlockingConfig(Config):
 class Cockroach(Agent):
     config: FlockingConfig
 
-    def get_alignment_weigth(self ) -> float :
-        return self.config.alignment_weight
-
 
     def change_position(self):
         self.there_is_no_escape()
@@ -35,15 +32,6 @@ class Cockroach(Agent):
         birds = list(self.in_proximity_accuracy()) # All birds in de proximity
 
         # -------------
-
-        obstacle_hit = pg.sprite.spritecollideany(self, self._obstacles, pg.sprite.collide_mask)  # type: ignore
-
-        collision = bool(obstacle_hit)
-
-        if collision:
-            dif = self.pos - Vector2(x=375, y=375)
-            self.move += dif.normalize()/2
-            collision = False
 
         # ----------------
 

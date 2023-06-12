@@ -10,8 +10,7 @@ import random
 @deserialize
 @dataclass
 class AggregationConfig(Config):
-    proclivity_leave: float = 0.5
-    proclivity_stay: float = 0.3
+    sensitivity = 0.5
 
     delta_time: float = 5
     mass: int = 10
@@ -26,22 +25,40 @@ class Cockroach(Agent):
     def get_alignment_weigth(self ) -> float :
         return self.config.alignment_weight
 
+
     def update(self):
-        self.bump_and_freeze()
-        self.change_position()
+        #self.bump_and_freeze()
+        # self.change_position()
+        # self.hardcode_stop_onsite()
+        
+
 
     def change_position(self):
         self.bounce_back()
-        self.pos += self.move * self.config.delta_time
-        print(self.move)
-        self.bump_and_freeze()
-        
-    def bump_and_freeze(self):
+        self.pos += self.move * self.config.delta_time  
+
+
+
+    def wandering(self):
+        pass
+    def joining(self):
+        pass
+    def still(self):
+        pass
+    def leaving(self):
+        pass
+    def hardcode_stop_onsite(self):
+        if self.on_site_id() == 0 or self.on_site_id() == 1:
+            print(self.on_site_id())
+            self.move = Vector2((0,0))
+
+    def bump_and_turn(self):
         for agent in self.in_proximity_accuracy().without_distance():
             if(agent.move == Vector2((0,0))):
                 agent.move = Vector2((random.uniform(-1, 1),random.uniform(-1, 1)))
             else:
                 agent.move = Vector2((0,0))
+
     def bounce_back(self):
         changed = False
         margin_x = 10
@@ -118,7 +135,8 @@ class AggregationLive(Simulation):
         )
     )
     .batch_spawn_agents(50, Cockroach, images=["assignment_0/images/bird.png"])
-    .spawn_obstacle(image_path="examples/images/site.png", x = 750 // 2 , y = 750 // 2)
+    .spawn_site(image_path="examples/images/site.png", x = 130 , y = 375)
+    .spawn_site(image_path="examples/images/site.png", x = 500 // 2 , y = 375)
     .run()
 )
 

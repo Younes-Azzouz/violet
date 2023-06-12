@@ -10,67 +10,74 @@ import random
 @deserialize
 @dataclass
 class FlockingConfig(Config):
-    alignment_weight: float = 0.5
-    cohesion_weight: float = 0.3
-    separation_weight: float = 0.5
+    # alignment_weight: float = 0.5
+    cohesion_weight: float = 0
+    separation_weight: float = 0
 
-    delta_time: float = 5
+    delta_time: float = 2
     mass: int = 10
 
-    def weights(self) -> tuple[float, float, float]:
-        return (self.alignment_weight, self.cohesion_weight, self.separation_weight)
+    def weights(self) -> tuple[float, float]:
+        return (self.cohesion_weight, self.separation_weight)
 
 
 class Cockroach(Agent):
     config: FlockingConfig
+    
+    
+         
 
 
     def change_position(self):
+        # remove  this and make it finite space
         self.there_is_no_escape()
         #YOUR CODE HERE -----------
+        if next(self.in_proximity_accuracy().without_distance()) is not None:
+             self.freeze_movement()
         
-        birds = list(self.in_proximity_accuracy()) # All birds in de proximity
-
-        # -------------
+        cockroaches = list(self.in_proximity_accuracy()) # All cockroaches in de proximity
+        
+        
+            
 
         # ----------------
 
-        if len(birds) > 0:
-            ### ALIGNMENT ###
-            velocities = Vector2() 
-            for boid, _ in birds: 
-                velocities += boid.move 
-            Vn = velocities/len(birds) 
-            alignment = Vn - self.move 
-            alignment = alignment.normalize()
+        if len(cockroaches) > 0:
+            # ### ALIGNMENT ### change to join
+            # velocities = Vector2() 
+            # for boid, _ in cockroaches: 
+            #     velocities += boid.move 
+            # Vn = velocities/len(cockroaches) 
+            # alignment = Vn - self.move 
+            # alignment = alignment.normalize()
 
 
-            ### SEPERATION ###
+            ### SEPERATION ### 
             positions = Vector2() 
-            for boid, _ in birds:
+            for boid, _ in cockroaches:
                 positions += (self.pos - boid.pos)
-            seperation = positions/len(birds) 
+            seperation = positions/len(cockroaches) 
             seperation = seperation.normalize()
 
 
             ### COHESION ###
             bird_positions = Vector2()
-            for boid, _ in birds:
+            for boid, _ in cockroaches:
                 bird_positions += boid.pos
-            average_positions = bird_positions/len(birds) 
+            average_positions = bird_positions/len(cockroaches) 
             cohesion = (average_positions - self.pos) - self.move
             cohesion = cohesion.normalize()
 
         else:
-            alignment = Vector2((0,0))
+            # alignment = Vector2((0,0))
             seperation = Vector2((0,0))        
             cohesion = Vector2((0,0))   
 
         # Adding everything together
-        a_weight, c_weight, s_weight = self.config.weights()
+        c_weight, s_weight = self.config.weights()
         max_velocity = 5
         
-        Ftotal = ((s_weight * seperation) + (a_weight * alignment) + (c_weight * cohesion)) / self.config.mass # epsilon is beetje random bewegen
+        Ftotal = ((s_weight * seperation) + + (c_weight * cohesion)) / self.config.mass # epsilon is beetje random bewegen
         self.move += Ftotal
 
         if self.move.length() > max_velocity:
@@ -78,7 +85,7 @@ class Cockroach(Agent):
 
         self.pos += self.move * self.config.delta_time
 
-        #END CODE -----------------
+        # #END CODE -----------------
 
 
 class Selection(Enum):
@@ -93,7 +100,8 @@ class FlockingLive(Simulation):
 
     def handle_event(self, by: float):
         if self.selection == Selection.ALIGNMENT:
-            self.config.alignment_weight += by
+            pass
+            # self.config.alignment_weight += by
         elif self.selection == Selection.COHESION:
             self.config.cohesion_weight += by
         elif self.selection == Selection.SEPARATION:
@@ -115,7 +123,7 @@ class FlockingLive(Simulation):
                 elif event.key == pg.K_3:
                     self.selection = Selection.SEPARATION
 
-        a, c, s = self.config.weights()
+        c, s = self.config.weights()
         # print(f"A: {a:.1f} - C: {c:.1f} - S: {s:.1f}")
 
         
@@ -128,7 +136,7 @@ class FlockingLive(Simulation):
             seed=1, 
         )
     )
-    .batch_spawn_agents(50, Cockroach, images=["assignment_0/images/bird.png"])
+    .batch_spawn_agents(30, Cockroach, images=["assignment_0/images/bird.png"])
     .spawn_obstacle(image_path="examples/images/site.png", x = 750 // 2 , y = 750 // 2)
     .run()
 )

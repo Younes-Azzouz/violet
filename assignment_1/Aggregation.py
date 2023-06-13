@@ -144,12 +144,11 @@ class AggregationLive(Simulation):
             seed=1, 
         )
     )
-    .batch_spawn_agents(10, Cockroach, images=["assignment_0/images/bird.png"])
-    .spawn_site(image_path="examples/images/site.png", x = 130 , y = 375)
-    .spawn_site(image_path="examples/images/site.png", x = 500 // 2 , y = 375)
+    .batch_spawn_agents(10, Cockroach, images=["violet/assignment_1/images/bird.png"])
+    .spawn_site(image_path="violet/assignment_1/images/site.png", x = 130 , y = 375)
+    .spawn_site(image_path="violet/assignment_1/images/site.png", x = 500 // 2 , y = 375)
     .run()
 )
-
 
 # (
 #     # Step 1: Create a new simulation.

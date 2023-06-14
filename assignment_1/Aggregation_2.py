@@ -48,7 +48,7 @@ class Cockroach(Agent):
     config: AggregationConfig
     state: State = State.WANDERING
     timer: int = 0
-    radius: float = 9
+    radius: float = 8
 
     def check_for_overlap(self):
         for other_agent in Cockroach.agents:
@@ -219,12 +219,7 @@ class AggregationLive(Simulation):
                     if agent.state == State.WANDERING:
                         if random.random() < self.config.Pjoin:
                             agent.state = State.JOINING
-                            for agent in neighbors_in_sight:
-                                self.config.Pjoin = self.config.Pjoin + 1 / len(neighbors_in_sight * 5)
-                                
                             agent.timer = self.config.Tjoin + np.random.normal(0, 1)
-                            
-                            
                     elif agent.state == State.STILL:
                         neighbors_in_sight = agent.get_neighbors_in_sight()
                         
@@ -232,11 +227,8 @@ class AggregationLive(Simulation):
                         if random.random() < self.config.Pleave:
                             agent.state = State.LEAVING
                             for agent in neighbors_in_sight:
-                                self.config.Pleave = self.config.Pleave - 1 / len(neighbors_in_sight * 5)
-                                
-                                
-                            
-                            # agent.timer = self.config.Tleave + np.random.normal(0, 1)
+                                self.config.Pleave = self.config.Pleave - 1 / len(neighbors_in_sight * 50)
+                            agent.timer = self.config.Tleave + np.random.normal(0, 1)
                     elif agent.state == State.JOINING:
                         direction_to_site = (site.pos - agent.pos).normalize()
                         agent.move = direction_to_site
@@ -286,7 +278,7 @@ sim_no_sites = AggregationLiveNoSites(AggregationConfig(
 
 
 sim_with_sites = AggregationLive(AggregationConfig(
-    Pjoin=0.3,
+    Pjoin=0.5,
     Pleave=0.99,
     Tjoin=10,
     Tleave=40,

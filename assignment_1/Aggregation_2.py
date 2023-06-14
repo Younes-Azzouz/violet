@@ -48,7 +48,7 @@ class Cockroach(Agent):
     config: AggregationConfig
     state: State = State.WANDERING
     timer: int = 0
-    radius: float = 10
+    radius: float = 9
 
     def check_for_overlap(self):
         for other_agent in Cockroach.agents:
@@ -219,7 +219,12 @@ class AggregationLive(Simulation):
                     if agent.state == State.WANDERING:
                         if random.random() < self.config.Pjoin:
                             agent.state = State.JOINING
+                            for agent in neighbors_in_sight:
+                                self.config.Pjoin = self.config.Pjoin + 1 / len(neighbors_in_sight * 5)
+                                
                             agent.timer = self.config.Tjoin + np.random.normal(0, 1)
+                            
+                            
                     elif agent.state == State.STILL:
                         neighbors_in_sight = agent.get_neighbors_in_sight()
                         
@@ -227,12 +232,16 @@ class AggregationLive(Simulation):
                         if random.random() < self.config.Pleave:
                             agent.state = State.LEAVING
                             for agent in neighbors_in_sight:
-                                self.config.Pleave = self.config.Pleave - 1 / len(neighbors_in_sight)
+                                self.config.Pleave = self.config.Pleave - 1 / len(neighbors_in_sight * 5)
+                                
+                                
                             
-                            agent.timer = self.config.Tleave + np.random.normal(0, 1)
+                            # agent.timer = self.config.Tleave + np.random.normal(0, 1)
                     elif agent.state == State.JOINING:
                         direction_to_site = (site.pos - agent.pos).normalize()
                         agent.move = direction_to_site
+                        
+                        
                     elif agent.state == State.LEAVING:
                         direction_to_site = (site.pos - agent.pos).normalize()
                         agent.move = -direction_to_site
@@ -244,7 +253,7 @@ class AggregationLiveNoSites(Simulation):
 
     def __init__(self, config: AggregationConfig):
         super().__init__(config)
-        self.batch_spawn_agents(100, Cockroach, images=[self.cockroach_image_path])
+        self.batch_spawn_agents(50, Cockroach, images=[self.cockroach_image_path])
 
     def handle_event(self, by: float):
         pass
@@ -277,10 +286,10 @@ sim_no_sites = AggregationLiveNoSites(AggregationConfig(
 
 
 sim_with_sites = AggregationLive(AggregationConfig(
-    Pjoin=0.5,
+    Pjoin=0.3,
     Pleave=0.99,
     Tjoin=10,
-    Tleave=20,
+    Tleave=40,
     D=20,
     delta_time=1,
     range_of_sight=20,

@@ -31,7 +31,7 @@ class State(Enum):
 @deserialize
 @dataclass
 class AggregationConfig(Config):
-    Pjoin: float = 0.5
+    Pjoin: float = 0.8
     Pleave: float = 0.5
     Tjoin: int = 10
     Tleave: int = 10
@@ -48,7 +48,7 @@ class Cockroach(Agent):
     config: AggregationConfig
     state: State = State.WANDERING
     timer: int = 0
-    radius: float = 20
+    radius: float = 5
 
     def check_for_overlap(self):
         for other_agent in Cockroach.agents:
@@ -61,7 +61,7 @@ class Cockroach(Agent):
                         direction = (self.pos - other_agent.pos).normalize()
                     overlap = self.radius + other_agent.radius - distance_between_agents
                     self.pos += overlap / 2 * direction  
-                    other_agent.pos -= overlap / 2 * direction  
+                    other_agent.pos -= overlap / 2 * direction
 
 
     agents = []
@@ -95,19 +95,26 @@ class Cockroach(Agent):
 
         self.change_position()
 
-    def change_position(self):
-        self.bounce_back()
-        self.pos += self.move * self.config.delta_time
+    # def change_position(self):
+    #     self.bounce_back()
+    #     self.pos += self.move * self.config.delta_time
 
-        for other_agent in Cockroach.agents:
-            if other_agent != self and self.pos.distance_to(other_agent.pos) < self.radius:
-                self.pos -= self.move * self.config.delta_time
-                break
+    #     for other_agent in Cockroach.agents:
+    #         if other_agent != self and self.pos.distance_to(other_agent.pos) < self.radius:
+    #             self.pos -= self.move * self.config.delta_time
+    #             break
 
     # def wandering(self):
     #     # Add randomness to the movement
     #     self.move += Vector2(random.uniform(-1, 1), random.uniform(-1, 1))
     #     self.move = self.move.normalize()
+    
+    
+    def prob_leave(self):
+        
+    
+    
+    
     
     # Wandring and flocking
     def wandering(self):
@@ -160,8 +167,8 @@ class Cockroach(Agent):
 
     def bounce_back(self):
         changed = False
-        margin_x = 10
-        margin_y = 10
+        margin_x = 5
+        margin_y = 5
 
         if self.pos.x < self._area.left + margin_x:
             changed = True
@@ -195,7 +202,7 @@ class AggregationLive(Simulation):
             self.spawn_site(image_path=self.site_image_path, x=130, y=375, radius=75),
             self.spawn_site(image_path=self.site_image_path, x=500, y=375, radius=125)
         ]
-        self.batch_spawn_agents(20, Cockroach, images=[self.cockroach_image_path])
+        self.batch_spawn_agents(100, Cockroach, images=[self.cockroach_image_path])
 
     def spawn_site(self, image_path, x, y, radius=100):
         new_site = Site(image_path, x, y, radius)
@@ -273,9 +280,9 @@ sim_no_sites = AggregationLiveNoSites(AggregationConfig(
 
 sim_with_sites = AggregationLive(AggregationConfig(
     Pjoin=0.5,
-    Pleave=0.5,
+    Pleave=10,
     Tjoin=10,
-    Tleave=10,
+    Tleave=20,
     D=20,
     delta_time=1,
     range_of_sight=20,

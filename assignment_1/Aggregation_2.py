@@ -48,7 +48,7 @@ class Cockroach(Agent):
     config: AggregationConfig
     state: State = State.WANDERING
     timer: int = 0
-    radius: float = 10
+    radius: float = 8
 
     def check_for_overlap(self):
         for other_agent in Cockroach.agents:

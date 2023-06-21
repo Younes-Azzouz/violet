@@ -8,29 +8,25 @@ class Grass(Agent):
     def update(self):
         # Static grass
         self.freeze_movement()
-
-class Grass2(Grass):
-    pass
-
-class Grass3(Grass):
-    pass
-
-        
     
 class Rabbit(Agent):
-    
-    
+    # Init agent with Energybar
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.energy_bar = 60  
+        # Set birthtime to current time
         self.birth_time = time.time()  
 
 
     def update(self):
-        # Random reproduction of rabbits
-        
-        if random.random() < 0.003:
-            self.reproduce()
+        # Random probability of rabbit death,  commented for testing
+        ### Play with param
+        #if random.random() < 0.003:
+        #    self.kill()
+
+        # Random reproduction of rabbits, commented for testing
+        #if random.random() < 0.003:
+        #   self.reproduce()
             
             
         age = time.time() - self.birth_time
@@ -50,31 +46,12 @@ class Rabbit(Agent):
                 self.energy_bar += 10
                 if self.energy_bar >= 60:
                     self.energy_bar = 60
-                print(self.energy_bar)
-
-        in_proximity = self.in_proximity_accuracy().filter_kind(Grass2)
-        for agent, _ in in_proximity:
-            if agent.alive():
-                agent.kill()
-                agent.change_image(1)
-                self.energy_bar += 30 
-                if self.energy_bar >= 60:
-                    self.energy_bar = 60
-                print(self.energy_bar)
-
-        in_proximity = self.in_proximity_accuracy().filter_kind(Grass3)
-        for agent, _ in in_proximity:
-            if agent.alive():
-                agent.kill()
-                agent.change_image(1)
-                self.energy_bar = 60
-                print(self.energy_bar)
                 
-                
+        # Random chance of death as age increases      
         if random.random() < death_probability:
             self.kill()
             return
-        
+        # Random chance of reproduction as age increases
         if random.random() < reproduction_probability:
             self.reproduce()
                 
@@ -82,16 +59,17 @@ class Rabbit(Agent):
 
 class Fox(Agent):
     def update(self):
-        # Fox eating rabbit
+        # Asexual reproduction, if Fox collide with rabbit -> Kill rabbit + extra fox
         in_proximity = self.in_proximity_accuracy().filter_kind(Rabbit)
         for agent, _ in in_proximity:
             if agent.alive():
                 agent.kill()
                 self.reproduce()
-        # Random death of fox
+
+        # Random probability of fox death
+        ### Play with param
         if random.random() < 0.002:
             self.kill()
-        
 
                 
 (
@@ -101,12 +79,7 @@ class Fox(Agent):
     ))
     .batch_spawn_agents(10, Rabbit, images=['assi2/images/red.png'])
     .batch_spawn_agents(7, Fox, images=['assi2/images/bird.png'])
-    .batch_spawn_agents(5, Grass, images=['assi2/images/grass1.png'
-                                          ,'assi2/images/white.png'])
-    .batch_spawn_agents(5, Grass2, images=['assi2/images/grass2.png'
-                                          ,'assi2/images/white.png'])
-    .batch_spawn_agents(5, Grass3, images=['assi2/images/grass3.png'
-                                          ,'assi2/images/white.png'])
+    .batch_spawn_agents(5, Grass, images=['assi2/images/grass1.png'])
     .run()
 )
 

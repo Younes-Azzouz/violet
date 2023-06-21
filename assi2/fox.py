@@ -9,11 +9,12 @@ class Rabbit(Agent):
 
 class Fox(Agent):
     def update(self):
-        in_proximity = list(self.in_proximity_accuracy())
+        in_proximity = self.in_proximity_accuracy().filter_kind(Rabbit)
         for agent, _ in in_proximity:
-            if agent.__class__ == Rabbit: # type: ignore
+            if agent.alive():
                 agent.kill()
                 self.reproduce()
+                
 (
     Simulation(Config(
         image_rotation = True

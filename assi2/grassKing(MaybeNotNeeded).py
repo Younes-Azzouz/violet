@@ -7,8 +7,6 @@ from pygame.math import Vector2
 class FoxRabbitConfig(Config):
     reproduce_threshold: int = 10
 
-    def weights(self) -> tuple[float, float]:
-        return (self.Pjoin, self.Pleave)
 
 class Rabbit(Agent):
     agents = []

@@ -18,14 +18,30 @@ class Grass3(Grass):
         
     
 class Rabbit(Agent):
+    
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.energy_bar = 60  
+        self.birth_time = time.time()  
 
 
     def update(self):
         # Random reproduction of rabbits
+        
         if random.random() < 0.003:
+            self.reproduce()
+            
+            
+        age = time.time() - self.birth_time
+        death_probability = min(0.005 * age, 0.5) 
+        reproduction_probability = max(0.003 - 0.0001 * age, 0.001)
+        
+        if random.random() < death_probability:
+            self.kill()
+            return
+        
+        if random.random() < reproduction_probability:
             self.reproduce()
 
         # Rabbit eating grass -> replenish energy
@@ -59,7 +75,14 @@ class Rabbit(Agent):
                 agent.change_image(1)
                 self.energy_bar = 60
                 print(self.energy_bar)
-
+                
+                
+        if random.random() < death_probability:
+            self.kill()
+            return
+        
+        if random.random() < reproduction_probability:
+            self.reproduce()
                 
     
 
@@ -92,3 +115,6 @@ class Fox(Agent):
                                           ,'assi2/images/white.png'])
     .run()
 )
+
+
+

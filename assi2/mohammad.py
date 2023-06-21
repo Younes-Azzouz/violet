@@ -6,23 +6,30 @@ class Rabbit(Agent):
         if random.random() < 0.003:
             self.reproduce()
 
-        for agent, _ in self.in_proximity_accuracy():
-            if isinstance(agent, Fox):
-                self.kill()
-                break
-                
-
 class Fox(Agent):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.energy_bar = 60  
+
     def update(self):
+        self.energy_bar -= .04
+        print(self.energy_bar)
+
+        if self.energy_bar <= 0:
+            self.kill()
+            return
+
         if random.random() < 0.002:
             self.kill()
             return
 
-        for agent, _ in self.in_proximity_accuracy():
-            if isinstance(agent, Rabbit):
+        in_proximity = self.in_proximity_accuracy().filter_kind(Rabbit)
+        for agent, _ in in_proximity:
+            if agent.alive(): 
                 agent.kill()
                 self.reproduce()
-                break
+                self.energy_bar = 60  
+                break  
 
 (
     Simulation(Config(image_rotation=True))

@@ -5,11 +5,6 @@ class Rabbit(Agent):
     def update(self):
         if random.random() < 0.003:
             self.reproduce()
-
-        for agent, _ in self.in_proximity_accuracy():
-            if isinstance(agent, Fox):
-                self.kill()
-                break
                 
 
 class Fox(Agent):
@@ -18,11 +13,11 @@ class Fox(Agent):
             self.kill()
             return
 
-        for agent, _ in self.in_proximity_accuracy():
-            if isinstance(agent, Rabbit):
+        in_proximity = self.in_proximity_accuracy().filter_kind(Rabbit)
+        for agent, _ in in_proximity:
+            if agent.alive():
                 agent.kill()
                 self.reproduce()
-                break
 
 (
     Simulation(Config(image_rotation=True))

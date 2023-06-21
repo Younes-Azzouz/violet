@@ -37,12 +37,6 @@ class Rabbit(Agent):
         death_probability = min(0.005 * age, 0.5) 
         reproduction_probability = max(0.003 - 0.0001 * age, 0.001)
         
-        if random.random() < death_probability:
-            self.kill()
-            return
-        
-        if random.random() < reproduction_probability:
-            self.reproduce()
 
         # Rabbit eating grass -> replenish energy
         self.energy_bar -= 0.1

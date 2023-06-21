@@ -7,9 +7,8 @@ class Fox(Agent):
     def update(self):
         in_proximity = list(self.in_proximity_accuracy())
         for agent, _ in in_proximity:
-            print(type(agent))
-            #if agent.__class__ == agent.Rabbit:
-            #    print())
+            if agent.__class__ == Rabbit: # type: ignore
+                print('test')
 
 (
     Simulation(Config(

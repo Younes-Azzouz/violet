@@ -11,7 +11,7 @@ class Rabbit(Agent):
     def update(self):
         # Save rabbit agent data for plots
         self.save_data('Agent Type', 'Rabbit')
-        self.save_data('Population', self.population)
+        #self.save_data('Population', self.population)
         
         # Update rabbit population based on Lotka-Volterra dynamics
         rabbit_growth_rate = 0.02

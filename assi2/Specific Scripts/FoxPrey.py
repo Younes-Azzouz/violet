@@ -31,7 +31,7 @@ class Fox(Agent):
     def update(self):
         # Save Fox agent data for plots
         self.save_data('Agent Type', 'Fox')
-        self.save_data('Population', self.population)
+        #self.save_data('Population', self.population)
         
         # Update fox population based on Lotka-Volterra dynamics
         fox_growth_rate = 0.01
@@ -61,10 +61,10 @@ df = (
     .batch_spawn_agents(25, Fox, images=['assi2/images/fox.png'])
     .run()
     .snapshots.groupby(['frame', 'Agent Type'])
-    .agg(pl.sum('Population').alias('agent number'))
+    .agg(pl.sum('Agent type').alias('agent number'))
     .sort(['frame', 'Agent Type'])
 )
 
 # Plot df
 plot = sns.relplot(x=df['frame'], y=df['agent number'], hue=df['Agent Type'], kind='line')
-plot.savefig('assi2/Graphs/Stage1(6).png', dpi=600)
+plot.savefig('assi2/Graphs/foxPrey_graph.png', dpi=600)

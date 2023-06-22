@@ -10,8 +10,7 @@ class Rabbit(Agent):
     def update(self): 
         # Save rabbit agent data for plots      
         self.save_data('Agent Type', 'Rabbit')
-        # Random probability of rabbit death
-        ### Play with param
+        # Random probability of Rabbit spawning
         if random.random() < 0.00262:
             self.reproduce()
     

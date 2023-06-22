@@ -313,11 +313,11 @@ df = (
     #.batch_spawn_agents(25, Fox, images=['assi2/images/fox.png'])
     #.batch_spawn_agents(15, Grass, images=['assi2/images/grass1.png', 'assi2/images/grass2.png', 'assi2/images/grass3.png'])
     ### UNCOMMENT THE FOLLOWING TO IMPLEMENT GENDER SPECIFIC >>>>
-    .batch_spawn_agents(30, Rabbit, images=male_rabbit_images)
-    .batch_spawn_agents(30, Rabbit, images=female_rabbit_images)
-    .batch_spawn_agents(20, Fox, images=male_fox_images)
-    .batch_spawn_agents(20, Fox, images=female_fox_images)
-    .batch_spawn_agents(15, Grass, images=['assi2/images/grass1.png', 'assi2/images/grass2.png', 'assi2/images/grass3.png'])
+    .batch_spawn_agents(30, Rabbit, images=['assi2/images/rabbit.png'])
+    .batch_spawn_agents(30, Rabbit, images=['assi2/images/female_rabbit.png'])
+    .batch_spawn_agents(20, Fox, images=['assi2/images/fox.png', 'assi2/images/dead_fox1.png', 'assi2/images/dead_fox2.png'])
+    .batch_spawn_agents(20, Fox, images=['assi2/images/female_fox.png', 'assi2/images/dead_fox1.png', 'assi2/images/dead_fox2.png'])
+    .batch_spawn_agents(15, Grass, images=['assi2/images/grass1.png', 'assi2/images/grass2.png', 'assi2/images/grass3.png', 'assi2/images/dead_grass.png'])
     .run()
     .snapshots.groupby(['frame','Agent Type']) # Initialize dataframe
     #.groupby(['frame','id', 'Agent Type'])

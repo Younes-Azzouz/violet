@@ -85,7 +85,7 @@ class Rabbit(Agent):
         self.energy = 0 
 ##########      NEW FROM GRASSFOXKING.py ############
         self.reproduce_threshold = 30
-        #Rabbit.agents.append(self)
+        #Rabbit.agents.append(self) ####### UNCOMMENT? > ERROR
         self.accelerate = False
         self.decelerate = True
         self.hop_magnitude = 12

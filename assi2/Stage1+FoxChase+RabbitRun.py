@@ -16,7 +16,7 @@ class Rabbit(Agent):
         # Init running away
         if self.in_proximity_accuracy().filter_kind(Fox).count() > 0:
             self.running_away()
-        
+        ################################################################################################
         # Random probability of Rabbit spawning
         if random.random() < 0.00262:
             self.reproduce()

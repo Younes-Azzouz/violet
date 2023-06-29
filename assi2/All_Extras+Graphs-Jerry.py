@@ -412,6 +412,8 @@ grass_ages = pd.DataFrame(Grass.average_ages)
 rabbit_ages = pd.DataFrame(Rabbit.average_ages)
 fox_ages = pd.DataFrame(Fox.average_ages)
 
+hi Younes and Mohammad
+
 
 plot = sns.relplot(x=df['frame'], y=df['agent number'], hue=df['Agent Type'], kind='line')
 plot.savefig('assi2/Graphs/Extra(1).png', dpi=600)

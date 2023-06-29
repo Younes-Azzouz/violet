@@ -8,13 +8,20 @@ import polars as pl
 import seaborn as sns
 from pygame.math import Vector2
 import pygame as pg
+import pandas as pd
+import matplotlib.pyplot as plt
 
 EPS = 10 ** -5
 
+
+
 class Grass(Agent):
     agents = []
+    switch = 0
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.age_count = 0
         Grass.agents.append(self)
         self.energy = 0
 ############################ FOXKING ################################
@@ -27,6 +34,9 @@ class Grass(Agent):
         # Save grass data
         self.save_data('Agent Type', 'Grass')
 ####################### FOX KING ################################
+        self.calculate_average()
+        
+        self.age_count += 1/60
         in_proximity_grasses = self.in_proximity_accuracy().filter_kind(Grass)
         self.growing()
         self.sexing(in_proximity_grasses)
@@ -38,6 +48,8 @@ class Grass(Agent):
         self.move = Vector2((0,0))
         #if random.uniform(0, len(Grass.agents)) >= len(Grass.agents) * 0.999:
             #self.reproduce().pos = Vector2((random.randint(0, 750), random.randint(0, 750)))
+        
+        self.calculate_average()
 
     def sexing(self, in_proximity):
         around = 0
@@ -74,16 +86,33 @@ class Grass(Agent):
     
         return number
 
+    average_ages = [0]
+
+    def calculate_average(self):
+        summa = 0
+        alive = 0
+        for agent in Grass.agents:
+            if agent.alive():
+                alive += 1
+                summa += agent.age_count
+        if alive > 0 and Grass.average_ages[-1] != summa / alive:
+            Grass.average_ages.append(summa / alive)
+            #self.save_data('Average Grass Age', summa / alive)
+        else:
+            pass
+            #self.save_data('Average Grass Age', 0)
 
     
 class Rabbit(Agent):
     # Init agent with Energybar
 
     agents = []
+    
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.age_count = 0
 
         self.gender = random.choice(["male", "female"]) # Choose random a gender
         if self.gender == "male":
@@ -104,6 +133,7 @@ class Rabbit(Agent):
         self.hop_magnitude = 12
         self.hop = random.randint(0, self.hop_magnitude)
         self.hop_direction = Vector2((random.randint(-1, 1), random.randint(-1, 1))) # a normalized vector
+        self.age = 0
 
     def generate_random_direction(self):
         angle = random.uniform(0, 2 * math.pi)  # Random angle in radians
@@ -178,9 +208,9 @@ class Rabbit(Agent):
 
     def aging(self, in_proximity_rabbits):
         # Age implementation
-        age = time.time() - self.birth_time
-        death_probability = min(0.001 * age, 0.01) 
-        reproduction_probability = min(0.005 - 0.0001 * age, 0.001)
+        self.age = time.time() - self.birth_time
+        death_probability = min(0.001 * self.age, 0.01) 
+        reproduction_probability = min(0.005 - 0.0001 * self.age, 0.001)
         
                 
         # Random chance of death as age increases, higher chance of death as age increases      
@@ -197,9 +227,30 @@ class Rabbit(Agent):
             if dist < 15:
                 self.move = (agent.move + self.move) / 2
 
+
+    average_ages = [0]
+
+    def calculate_average(self):
+        summa = 0
+        alive = 0
+        for agent in Rabbit.agents:
+            if agent.alive():
+                alive += 1
+                summa += agent.age_count
+        if alive > 0 and Rabbit.average_ages[-1] != summa / alive:
+            Rabbit.average_ages.append(summa / alive)
+            #self.save_data('Average Rabbit Age', summa / alive)
+        else:
+            pass
+            #self.save_data('Average Rabbit Age', 0)
+
     def update(self):
         # Save Rabbit data
         self.save_data('Agent Type', 'Rabbit')
+
+        self.calculate_average()
+
+        self.age_count += 1/60
 
         ip_rabbits = list(self.in_proximity_accuracy().filter_kind(Rabbit))
         ip_foxes = list(self.in_proximity_accuracy().filter_kind(Fox))
@@ -216,14 +267,15 @@ class Rabbit(Agent):
             self.hoppity(ip_grasses)
             self.eating(ip_grasses, ip_rabbits)
 
-
+        
                 
     
 
 class Fox(Agent):
+    agents = []
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        self.age_count = 0
         self.gender = random.choice(["male", "female"]) # Choose random a gender
         if self.gender == "male":
             self.change_image(0)
@@ -231,7 +283,7 @@ class Fox(Agent):
             self.change_image(1)
         self.reproduction_timer = 0  # Initialize the timer
 ############### NEW FROM FOXKING #####################
-        Grass.agents.append(self)
+        Fox.agents.append(self)
         self.energy_bar = 75
         self.hunt_cycle = 1
         self.died_time = 0
@@ -273,7 +325,10 @@ class Fox(Agent):
     def update(self):
         # Save Fox data
         self.save_data('Agent Type', 'Fox')
+        self.calculate_average()
 ############# FOXKING ##########################
+
+        self.age_count += 1/60
 
         in_proximity_rabbits = list(self.in_proximity_accuracy().filter_kind(Rabbit))
         in_proximity_foxes = list(self.in_proximity_accuracy().filter_kind(Fox))
@@ -302,6 +357,24 @@ class Fox(Agent):
                         self.reproduce()  
                         self.reproduction_timer = 0  # Reset the timer after reproduction
         ###########################################################################
+
+        
+
+    average_ages = [0]
+
+    def calculate_average(self):
+        summa = 0
+        alive = 0
+        for agent in Fox.agents:
+            if agent.alive():
+                alive += 1
+                summa += agent.age_count
+        if alive > 0 and Fox.average_ages[-1] != summa / alive:
+            Fox.average_ages.append(summa / alive)
+            #self.save_data('Average Grass Age', summa / alive)
+        else:
+            pass
+            #self.save_data('Average Grass Age', 0)
 
 # Images for gender specific foxes and rabbits
 male_rabbit_images = ['assi2/images/rabbit.png']
@@ -335,5 +408,14 @@ df = (
 )
 #print(df) # Print dataframe
 # Plot df
+grass_ages = pd.DataFrame(Grass.average_ages)
+rabbit_ages = pd.DataFrame(Rabbit.average_ages)
+fox_ages = pd.DataFrame(Fox.average_ages)
+
+
 plot = sns.relplot(x=df['frame'], y=df['agent number'], hue=df['Agent Type'], kind='line')
 plot.savefig('assi2/Graphs/Extra(1).png', dpi=600)
+
+print(grass_ages)
+print(rabbit_ages)
+print(fox_ages)

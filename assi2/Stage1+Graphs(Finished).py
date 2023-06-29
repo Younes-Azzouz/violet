@@ -54,3 +54,4 @@ df = (
 # Plot df
 plot = sns.relplot(x=df['frame'], y=df['agent number'], hue=df['Agent Type'], kind='line')
 plot.savefig('assi2/Graphs/Stage1(7).png', dpi=600)
+df.write_csv('assi2/CSV Graphs/1stStage')

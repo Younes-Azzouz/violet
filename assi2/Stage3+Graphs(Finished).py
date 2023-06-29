@@ -54,7 +54,7 @@ df = (
         image_rotation = True,
         radius = 30, # Radius if which agents are in proximity
         #duration = 240 * 60, # Run simulation + present graphs over a 60 seconds time frame, 60 frames per second
-        seed = 1,
+        seed = 5,
     ))
     .batch_spawn_agents(35, Rabbit, images=['assi2/images/rabbit.png'])
     .batch_spawn_agents(25, Fox, images=['assi2/images/fox.png'])
@@ -69,4 +69,4 @@ df = (
 #print(df) # Print dataframe
 # Plot df
 plot = sns.relplot(x=df['frame'], y=df['agent number'], hue=df['Agent Type'], kind='line')
-plot.savefig('assi2/Graphs/Stage3(2).png', dpi=600)
+plot.savefig('assi2/Graphs/Stage3NewSeed.png', dpi=600)

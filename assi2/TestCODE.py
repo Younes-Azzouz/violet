@@ -11,6 +11,21 @@ import pygame as pg
 
 EPS = 10 ** -5
 
+
+class DeathCount(Agent):
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     old_deathcount = 0
+
+    # def update(self):
+    #     #self.save_data('Agent Type', 'DC')
+
+    #     in_proximity = self.in_proximity_accuracy()
+    #     for agent, _ in in_proximity:
+    #         if agent.is_dead():
+    #             print('test')
+    pass
+
 class Grass(Agent):
     agents = []
     def __init__(self, *args, **kwargs):
@@ -71,19 +86,16 @@ class Grass(Agent):
         return number
 
 
-    
-class Rabbit(Agent):
+
+class MaleRabbit(Agent):
     # Init agent with Energybar
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.gender = random.choice(["male", "female"]) # Choose random a gender
         self.reproduction_timer = 0  # Initialize the timer
         self.energy_bar = 60 # Initialize energy bar
         # Set birthtime to current time
         self.birth_time = time.time() 
-        # Jerrys imp, unnecessary?
         self.energy = 0 
-##########      NEW FROM GRASSFOXKING.py ############
         self.reproduce_threshold = 30
         #Rabbit.agents.append(self) ####### UNCOMMENT? > ERROR
         self.accelerate = False
@@ -91,7 +103,6 @@ class Rabbit(Agent):
         self.hop_magnitude = 12
         self.hop = random.randint(0, self.hop_magnitude)
         self.hop_direction = Vector2((random.randint(-1, 1), random.randint(-1, 1))) # a normalized vector
-        self.save_data('Rabbit Gender', str(self.gender))
 
     def generate_random_direction(self):
         angle = random.uniform(0, 2 * math.pi)  # Random angle in radians
@@ -144,27 +155,20 @@ class Rabbit(Agent):
                 self.hop = 0
     
     def running_away(self):
-        in_proximity = list(self.in_proximity_accuracy().filter_kind(Fox))
+        in_proximity = list(self.in_proximity_accuracy().filter_kind(MaleFox)) or list(self.in_proximity_accuracy().filter_kind(FemaleFox))
         closest = 500
         for agent, dist in in_proximity:
             if dist < closest and agent.died_time == 0:
-                #self.move = (self.pos - agent.pos).normalize()
                 self.move = agent.move + Vector2((random.uniform(-0.2, 0.2), random.uniform(-0.2, 0.2)))
-                closest = dist
-
         self.move *= 0.9
+        return self.move
+
 ####################          ####################       #############                  ###############################
 
 
     def update(self):
         # Save Rabbit data
-        self.save_data('Agent Type', 'Rabbit')
-
-
-        # Unecessary >>>
-        #if random.random() < 0.003:
-        #   self.kill()
-        # NOT REQUIRED ^^^^^^^^^^^^^^^^^^
+        self.save_data('Agent Type', 'Male Rabbit')
 
         # Random reproduction of rabbits
         if random.random() < 0.00262:
@@ -200,9 +204,9 @@ class Rabbit(Agent):
 
                 ##### Sexual Reproduction #####
         if self.reproduction_timer > 240:  # Check the timer
-            potential_mates = self.in_proximity_accuracy().filter_kind(Rabbit)
+            potential_mates = self.in_proximity_accuracy().filter_kind(FemaleRabbit)
             for agent, _ in potential_mates:
-                if agent.alive() and agent.gender != self.gender:
+                if agent.alive():
                     if random.random() < 0.02:  # Chance to reproduce when encountering an opposite gender rabbit
                         self.reproduce() 
                         self.reproduction_timer = 0  # Reset the timer after reproduction
@@ -210,31 +214,158 @@ class Rabbit(Agent):
         ###########################################################################
 
         ### NEW FROM GRASSFOXKING.py
-        if self.in_proximity_accuracy().filter_kind(Fox).count() > 1:
+        if self.in_proximity_accuracy().filter_kind(MaleFox).count() > 0 or self.in_proximity_accuracy().filter_kind(FemaleFox).count() > 0:
             self.running_away()
         else:
             self.hoppity()
             self.eating()
 
 
-                
-    
-
-class Fox(Agent):
+class FemaleRabbit(Agent):
+    # Init agent with Energybar
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.gender = random.choice(["male", "female"]) # Choose random a gender
         self.reproduction_timer = 0  # Initialize the timer
-############### NEW FROM FOXKING #####################
+        self.energy_bar = 60 # Initialize energy bar
+        # Set birthtime to current time
+        self.birth_time = time.time() 
+        self.energy = 0 
+        self.reproduce_threshold = 30
+        #Rabbit.agents.append(self) ####### UNCOMMENT? > ERROR
+        self.accelerate = False
+        self.decelerate = True
+        self.hop_magnitude = 12
+        self.hop = random.randint(0, self.hop_magnitude)
+        self.hop_direction = Vector2((random.randint(-1, 1), random.randint(-1, 1))) # a normalized vector
+
+    def generate_random_direction(self):
+        angle = random.uniform(0, 2 * math.pi)  # Random angle in radians
+        direction = Vector2(math.cos(angle), math.sin(angle))  # Convert angle to direction vector
+        return direction
+
+    def get_alignment_weigth(self ) -> float :
+        return self.config.alignment_weight
+
+    def closest_grass(self):
+        grasses = list(self.in_proximity_accuracy().filter_kind(Grass))
+        closest = 500
+        ret = None
+        for agent, dist in grasses:
+            if dist < closest:
+                    ret = (self.move + agent.pos).normalize()
+                    closest = dist
+        return ret
+
+    
+    def eating(self):
+        grasses = list(self.in_proximity_accuracy().filter_kind(Grass))
+        for agent, dist in grasses:
+            if agent.alive() and dist < 10:
+                self.energy_bar += agent.energy if self.energy_bar < 5 else 5
+                agent.kill()
+                if self.energy_bar > self.reproduce_threshold:
+                    pass
+                    self.reproduce().move = Vector2((random.uniform(-1, 1), random.uniform(-1, 1))).normalize()
+    
+    def hoppity(self):
+        move_to_grass = self.closest_grass()
+        if self.decelerate:
+            self.move *= 1.15
+        elif self.accelerate:
+            self.move *= (1 / 1.15)
+        self.hop += 1
+        if self.hop > self.hop_magnitude:
+            self.move *= 0.6
+            if self.hop > int(self.hop_magnitude * 2):
+                if self.accelerate:
+                    if move_to_grass is None:
+                        self.hop_direction = Vector2((random.randint(-1, 1), random.randint(-1, 1))) # a normalized vector
+                        self.move = self.hop_direction
+                    else:
+                        self.move = move_to_grass
+                    self.hop_magnitude = random.randint(1, 12)
+                self.accelerate = not self.accelerate
+                self.decelerate = not self.decelerate
+                self.hop = 0
+    
+    def running_away(self):
+        in_proximity = list(self.in_proximity_accuracy().filter_kind(MaleFox)) or list(self.in_proximity_accuracy().filter_kind(FemaleFox))
+        closest = 500
+        for agent, dist in in_proximity:
+            if dist < closest and agent.died_time == 0:
+                self.move = agent.move + Vector2((random.uniform(-0.2, 0.2), random.uniform(-0.2, 0.2)))
+        self.move *= 0.9
+        return self.move
+####################          ####################       #############                  ###############################
+
+
+    def update(self):
+        # Save Rabbit data
+        self.save_data('Agent Type', 'Female Rabbit')
+
+        # Random reproduction of rabbits
+        if random.random() < 0.00262:
+          self.reproduce()
+            
+        # Age implementation
+        age = time.time() - self.birth_time
+        death_probability = min(0.005 * age, 0.5) 
+        reproduction_probability = max(0.003 - 0.0001 * age, 0.001)
+        
+
+        # Rabbit eating grass -> replenish energy
+        self.energy_bar -= 0.1
+        if self.energy_bar <= 0:
+            self.kill()
+        in_proximity = self.in_proximity_accuracy().filter_kind(Grass)
+        for agent, _ in in_proximity:
+            if agent.alive():
+                self.reproduce()
+                agent.kill()
+                agent.change_image(1)
+                self.energy_bar += 10
+                if self.energy_bar >= 60:
+                    self.energy_bar = 60
+                
+        # Random chance of death as age increases, higher chance of death as age increases      
+        if random.random() < death_probability:
+            self.kill()
+            return
+        # Random chance of reproduction as age increases, the lower age the higher chance of reproduction
+        if random.random() < reproduction_probability:
+            self.reproduce()
+
+                ##### Sexual Reproduction #####
+        if self.reproduction_timer > 240:  # Check the timer
+            potential_mates = self.in_proximity_accuracy().filter_kind(MaleRabbit)
+            for agent, _ in potential_mates:
+                if agent.alive():
+                    if random.random() < 0.02:  # Chance to reproduce when encountering an opposite gender rabbit
+                        self.reproduce() 
+                        self.reproduction_timer = 0  # Reset the timer after reproduction
+        self.reproduction_timer += 1  # Increment the timer on each frame
+        ###########################################################################
+
+        ### NEW FROM GRASSFOXKING.py
+        if self.in_proximity_accuracy().filter_kind(MaleFox).count() > 0 or self.in_proximity_accuracy().filter_kind(FemaleFox).count() > 0:
+            self.running_away()
+        else:
+            self.hoppity()
+            self.eating()
+
+
+class MaleFox(Agent):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.reproduction_timer = 0  # Initialize the timer
         Grass.agents.append(self)
         self.energy_bar = 50
         self.died_time = 0
         too_full_threshold = 80
-        self.save_data('Fox Gender', str(self.gender))
 
     def hunting_fox(self):
         if self.died_time == 0:
-            in_proximity = self.in_proximity_accuracy().filter_kind(Rabbit)
+            in_proximity = self.in_proximity_accuracy().filter_kind(MaleRabbit) or self.in_proximity_accuracy().filter_kind(FemaleRabbit)
             closest = 500
             for agent, dist in in_proximity:
                 if dist < closest:
@@ -268,7 +399,7 @@ class Fox(Agent):
 
     def update(self):
         # Save Fox data
-        self.save_data('Agent Type', 'Fox')
+        self.save_data('Agent Type', 'Male Fox')
 
 ############# FOXKING ##########################
         self.hunting_fox()
@@ -276,7 +407,7 @@ class Fox(Agent):
         self.dying_fox()
 ###################################################
         # Asexual reproduction, if Fox collide with rabbit -> Kill rabbit + extra fox
-        in_proximity = self.in_proximity_accuracy().filter_kind(Rabbit)
+        in_proximity = self.in_proximity_accuracy().filter_kind(MaleRabbit) or self.in_proximity_accuracy().filter_kind(FemaleRabbit)
         for agent, _ in in_proximity:
             if agent.alive():
                 agent.kill()
@@ -290,15 +421,92 @@ class Fox(Agent):
                 ##### Sexual Reproduction #####
         self.reproduction_timer += 1  # Increment the timer on each frame
         if self.reproduction_timer > 240:  
-            potential_mates = self.in_proximity_accuracy().filter_kind(Fox)
+            potential_mates = self.in_proximity_accuracy().filter_kind(FemaleFox)
             for agent, _ in potential_mates:
-                if agent.alive() and agent.gender != self.gender:
+                if agent.alive():
+                    if random.random() < 0.02:  # Chance to reproduce when encountering an opposite gender fox
+                        # self.save_data('FR', 'Sexual')
+                        self.reproduce()  
+                        self.reproduction_timer = 0  # Reset the timer after reproduction
+        ###########################################################################
+
+class FemaleFox(Agent):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.reproduction_timer = 0  # Initialize the timer
+        Grass.agents.append(self)
+        self.energy_bar = 50
+        self.died_time = 0
+        too_full_threshold = 80
+
+
+    def hunting_fox(self):
+        if self.died_time == 0:
+            in_proximity = self.in_proximity_accuracy().filter_kind(MaleRabbit) or self.in_proximity_accuracy().filter_kind(FemaleRabbit)
+            closest = 500
+            for agent, dist in in_proximity:
+                if dist < closest:
+                    self.move = (agent.pos - self.pos).normalize() * 1.05
+                    closest = dist
+                if agent.alive() and dist < 10:
+                    self.energy_bar = 50 # no inheriting the rabbit energy
+                    agent.kill()
+                    self.reproduce()
+    
+    def too_full(self):
+        if self.energy_bar > too_full_threshold:
+            pass
+
+    def dying_fox(self):
+        if self.energy_bar < 0:
+            self.move = Vector2((0,-1))
+            self.change_image(1)
+            self.died_time += 0.1
+        if self.died_time > 0:
+            self.died_time += 0.1
+        if self.died_time % 2 > 1 and self.died_time != 0:
+            self.change_image(2)
+        else:
+            if self.died_time != 0:
+                self.change_image(1)
+        if self.died_time > 30:
+            self.kill()
+#######################################################
+
+
+    def update(self):
+        # Save Fox data
+        self.save_data('Agent Type', 'Female Fox')
+
+############# FOXKING ##########################
+        self.hunting_fox()
+        self.energy_bar -= 0.1
+        self.dying_fox()
+###################################################
+        # Asexual reproduction, if Fox collide with rabbit -> Kill rabbit + extra fox
+        in_proximity = self.in_proximity_accuracy().filter_kind(MaleRabbit) or self.in_proximity_accuracy().filter_kind(FemaleRabbit)
+        for agent, _ in in_proximity:
+            if agent.alive():
+                agent.kill()
+                self.reproduce()
+
+        # Random probability of fox death
+        ### Play with param
+        if random.random() < 0.0038569:
+            self.kill()
+
+                ##### Sexual Reproduction #####
+        self.reproduction_timer += 1  # Increment the timer on each frame
+        if self.reproduction_timer > 240:  
+            potential_mates = self.in_proximity_accuracy().filter_kind(MaleFox)
+            for agent, _ in potential_mates:
+                if agent.alive():
                     if random.random() < 0.02:  # Chance to reproduce when encountering an opposite gender fox
                         self.reproduce()  
                         self.reproduction_timer = 0  # Reset the timer after reproduction
         ###########################################################################
 
-# Images for gender specific foxes and rabbits
+
 male_rabbit_images = ['assi2/images/rabbit.png']
 female_rabbit_images = ['assi2/images/female_rabbit.png']
 male_fox_images = ['assi2/images/fox.png']
@@ -316,11 +524,12 @@ df = (
     #.batch_spawn_agents(25, Fox, images=['assi2/images/fox.png'])
     #.batch_spawn_agents(15, Grass, images=['assi2/images/grass1.png', 'assi2/images/grass2.png', 'assi2/images/grass3.png'])
     ### UNCOMMENT THE FOLLOWING TO IMPLEMENT GENDER SPECIFIC >>>>
-    .batch_spawn_agents(30, Rabbit, images=['assi2/images/rabbit.png'])
-    .batch_spawn_agents(30, Rabbit, images=['assi2/images/female_rabbit.png'])
-    .batch_spawn_agents(30, Fox, images=['assi2/images/fox.png', 'assi2/images/dead_fox1.png', 'assi2/images/dead_fox2.png'])
-    .batch_spawn_agents(30, Fox, images=['assi2/images/female_fox.png', 'assi2/images/dead_fox1.png', 'assi2/images/dead_fox2.png'])
+    .batch_spawn_agents(30, MaleRabbit, images=['assi2/images/rabbit.png'])
+    .batch_spawn_agents(30, FemaleRabbit, images=['assi2/images/female_rabbit.png'])
+    .batch_spawn_agents(30, MaleFox, images=['assi2/images/fox.png', 'assi2/images/dead_fox1.png', 'assi2/images/dead_fox2.png'])
+    .batch_spawn_agents(30, FemaleFox, images=['assi2/images/female_fox.png', 'assi2/images/dead_fox1.png', 'assi2/images/dead_fox2.png'])
     .batch_spawn_agents(15, Grass, images=['assi2/images/grass1.png', 'assi2/images/grass2.png', 'assi2/images/grass3.png', 'assi2/images/dead_grass.png'])
+    #.batch_spawn_agents(1, DeathCount, images=['assi2/images/bird.png'])
     .run()
     .snapshots.groupby(['frame','Agent Type']) # Initialize dataframe
     #.groupby(['frame','id', 'Agent Type'])
@@ -331,7 +540,7 @@ df = (
     #.agg(pl.count('Agent Type').alias('id'))
     .sort(['frame', 'Agent Type'])
 )
-#print(df) # Print dataframe
+print(df) # Print dataframe
 # Plot df
 plot = sns.relplot(x=df['frame'], y=df['Population Count'], hue=df['Agent Type'], kind='line')
-plot.savefig('assi2/Graphs/Extra(1).png', dpi=600)
+plot.savefig('assi2/Graphs/Test.png', dpi=600)

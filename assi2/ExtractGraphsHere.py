@@ -141,7 +141,7 @@ class Rabbit(Agent):
         self.move *= 0.9
 
     def update(self):
-        self.save_data('Agent Type', 'Rabbit')
+        self.save_data('Agent Type', 'Rabbit' + self.gender)
         
         age = time.time() - self.birth_time
         death_probability = min(0.001 * age, 0.5) 
@@ -218,7 +218,7 @@ class Fox(Agent):
 
 
     def update(self):
-        self.save_data('Agent Type', 'Fox')
+        self.save_data('Agent Type', 'Fox' + self.gender)
         self.hunting_fox()
         self.energy_bar -= 0.1
         self.dying_fox()

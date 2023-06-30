@@ -387,9 +387,8 @@ df = (
     Simulation(Config(
         image_rotation = True,
         radius = 50, # Radius if which agents are in proximity
-        #duration = 60 * 60, # Run simulation + present graphs over a 60 seconds time frame, 60 frames per second
+        duration = 300 * 60, # Run simulation + present graphs over a 60 seconds time frame, 60 frames per second
         seed = 500,
-        duration = 30000
     ))
     #.batch_spawn_agents(35, Rabbit, images=['assi2/images/rabbit.png'])
     #.batch_spawn_agents(25, Fox, images=['assi2/images/fox.png'])
@@ -412,7 +411,7 @@ grass_ages = pd.DataFrame(Grass.average_ages)
 rabbit_ages = pd.DataFrame(Rabbit.average_ages)
 fox_ages = pd.DataFrame(Fox.average_ages)
 
-hi Younes and Mohammad
+#hi Younes and Mohammad
 
 
 plot = sns.relplot(x=df['frame'], y=df['agent number'], hue=df['Agent Type'], kind='line')

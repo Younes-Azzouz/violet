@@ -112,47 +112,47 @@ class MaleRabbit(Agent):
     def get_alignment_weigth(self ) -> float :
         return self.config.alignment_weight
 
-    def closest_grass(self):
-        grasses = list(self.in_proximity_accuracy().filter_kind(Grass))
-        closest = 500
-        ret = None
-        for agent, dist in grasses:
-            if dist < closest:
-                    ret = (self.move + agent.pos).normalize()
-                    closest = dist
-        return ret
+    # def closest_grass(self):
+    #     grasses = list(self.in_proximity_accuracy().filter_kind(Grass))
+    #     closest = 500
+    #     ret = None
+    #     for agent, dist in grasses:
+    #         if dist < closest:
+    #                 ret = (self.move + agent.pos).normalize()
+    #                 closest = dist
+    #     return ret
 
     
-    def eating(self):
-        grasses = list(self.in_proximity_accuracy().filter_kind(Grass))
-        for agent, dist in grasses:
-            if agent.alive() and dist < 10:
-                self.energy_bar += agent.energy if self.energy_bar < 5 else 5
-                agent.kill()
-                if self.energy_bar > self.reproduce_threshold:
-                    pass
-                    self.reproduce().move = Vector2((random.uniform(-1, 1), random.uniform(-1, 1))).normalize()
+    # def eating(self):
+    #     grasses = list(self.in_proximity_accuracy().filter_kind(Grass))
+    #     for agent, dist in grasses:
+    #         if agent.alive() and dist < 10:
+    #             self.energy_bar += agent.energy if self.energy_bar < 5 else 5
+    #             agent.kill()
+    #             if self.energy_bar > self.reproduce_threshold:
+    #                 pass
+    #                 self.reproduce().move = Vector2((random.uniform(-1, 1), random.uniform(-1, 1))).normalize()
     
-    def hoppity(self):
-        move_to_grass = self.closest_grass()
-        if self.decelerate:
-            self.move *= 1.15
-        elif self.accelerate:
-            self.move *= (1 / 1.15)
-        self.hop += 1
-        if self.hop > self.hop_magnitude:
-            self.move *= 0.6
-            if self.hop > int(self.hop_magnitude * 2):
-                if self.accelerate:
-                    if move_to_grass is None:
-                        self.hop_direction = Vector2((random.randint(-1, 1), random.randint(-1, 1))) # a normalized vector
-                        self.move = self.hop_direction
-                    else:
-                        self.move = move_to_grass
-                    self.hop_magnitude = random.randint(1, 12)
-                self.accelerate = not self.accelerate
-                self.decelerate = not self.decelerate
-                self.hop = 0
+    # def hoppity(self):
+    #     move_to_grass = self.closest_grass()
+    #     if self.decelerate:
+    #         self.move *= 1.15
+    #     elif self.accelerate:
+    #         self.move *= (1 / 1.15)
+    #     self.hop += 1
+    #     if self.hop > self.hop_magnitude:
+    #         self.move *= 0.6
+    #         if self.hop > int(self.hop_magnitude * 2):
+    #             if self.accelerate:
+    #                 if move_to_grass is None:
+    #                     self.hop_direction = Vector2((random.randint(-1, 1), random.randint(-1, 1))) # a normalized vector
+    #                     self.move = self.hop_direction
+    #                 else:
+    #                     self.move = move_to_grass
+    #                 self.hop_magnitude = random.randint(1, 12)
+    #             self.accelerate = not self.accelerate
+    #             self.decelerate = not self.decelerate
+    #             self.hop = 0
     
     def running_away(self):
         in_proximity = list(self.in_proximity_accuracy().filter_kind(MaleFox)) or list(self.in_proximity_accuracy().filter_kind(FemaleFox))
@@ -181,18 +181,18 @@ class MaleRabbit(Agent):
         
 
         # Rabbit eating grass -> replenish energy
-        self.energy_bar -= 0.1
-        if self.energy_bar <= 0:
-            self.kill()
+        # self.energy_bar -= 0.1
+        # if self.energy_bar <= 0:
+        #     self.kill()
         in_proximity = self.in_proximity_accuracy().filter_kind(Grass)
         for agent, _ in in_proximity:
             if agent.alive():
                 self.reproduce()
                 agent.kill()
                 agent.change_image(1)
-                self.energy_bar += 10
-                if self.energy_bar >= 60:
-                    self.energy_bar = 60
+                # self.energy_bar += 10
+                # if self.energy_bar >= 60:
+                #     self.energy_bar = 60
                 
         # Random chance of death as age increases, higher chance of death as age increases      
         if random.random() < death_probability:
@@ -216,9 +216,9 @@ class MaleRabbit(Agent):
         ### NEW FROM GRASSFOXKING.py
         if self.in_proximity_accuracy().filter_kind(MaleFox).count() > 0 or self.in_proximity_accuracy().filter_kind(FemaleFox).count() > 0:
             self.running_away()
-        else:
-            self.hoppity()
-            self.eating()
+        # else:
+        #     self.hoppity()
+        #     self.eating()
 
 
 class FemaleRabbit(Agent):
@@ -246,47 +246,47 @@ class FemaleRabbit(Agent):
     def get_alignment_weigth(self ) -> float :
         return self.config.alignment_weight
 
-    def closest_grass(self):
-        grasses = list(self.in_proximity_accuracy().filter_kind(Grass))
-        closest = 500
-        ret = None
-        for agent, dist in grasses:
-            if dist < closest:
-                    ret = (self.move + agent.pos).normalize()
-                    closest = dist
-        return ret
+    # def closest_grass(self):
+    #     grasses = list(self.in_proximity_accuracy().filter_kind(Grass))
+    #     closest = 500
+    #     ret = None
+    #     for agent, dist in grasses:
+    #         if dist < closest:
+    #                 ret = (self.move + agent.pos).normalize()
+    #                 closest = dist
+    #     return ret
 
     
-    def eating(self):
-        grasses = list(self.in_proximity_accuracy().filter_kind(Grass))
-        for agent, dist in grasses:
-            if agent.alive() and dist < 10:
-                self.energy_bar += agent.energy if self.energy_bar < 5 else 5
-                agent.kill()
-                if self.energy_bar > self.reproduce_threshold:
-                    pass
-                    self.reproduce().move = Vector2((random.uniform(-1, 1), random.uniform(-1, 1))).normalize()
+    # def eating(self):
+    #     grasses = list(self.in_proximity_accuracy().filter_kind(Grass))
+    #     for agent, dist in grasses:
+    #         if agent.alive() and dist < 10:
+    #             self.energy_bar += agent.energy if self.energy_bar < 5 else 5
+    #             agent.kill()
+    #             if self.energy_bar > self.reproduce_threshold:
+    #                 pass
+    #                 self.reproduce().move = Vector2((random.uniform(-1, 1), random.uniform(-1, 1))).normalize()
     
-    def hoppity(self):
-        move_to_grass = self.closest_grass()
-        if self.decelerate:
-            self.move *= 1.15
-        elif self.accelerate:
-            self.move *= (1 / 1.15)
-        self.hop += 1
-        if self.hop > self.hop_magnitude:
-            self.move *= 0.6
-            if self.hop > int(self.hop_magnitude * 2):
-                if self.accelerate:
-                    if move_to_grass is None:
-                        self.hop_direction = Vector2((random.randint(-1, 1), random.randint(-1, 1))) # a normalized vector
-                        self.move = self.hop_direction
-                    else:
-                        self.move = move_to_grass
-                    self.hop_magnitude = random.randint(1, 12)
-                self.accelerate = not self.accelerate
-                self.decelerate = not self.decelerate
-                self.hop = 0
+    # def hoppity(self):
+    #     move_to_grass = self.closest_grass()
+    #     if self.decelerate:
+    #         self.move *= 1.15
+    #     elif self.accelerate:
+    #         self.move *= (1 / 1.15)
+    #     self.hop += 1
+    #     if self.hop > self.hop_magnitude:
+    #         self.move *= 0.6
+    #         if self.hop > int(self.hop_magnitude * 2):
+    #             if self.accelerate:
+    #                 if move_to_grass is None:
+    #                     self.hop_direction = Vector2((random.randint(-1, 1), random.randint(-1, 1))) # a normalized vector
+    #                     self.move = self.hop_direction
+    #                 else:
+    #                     self.move = move_to_grass
+    #                 self.hop_magnitude = random.randint(1, 12)
+    #             self.accelerate = not self.accelerate
+    #             self.decelerate = not self.decelerate
+    #             self.hop = 0
     
     def running_away(self):
         in_proximity = list(self.in_proximity_accuracy().filter_kind(MaleFox)) or list(self.in_proximity_accuracy().filter_kind(FemaleFox))
@@ -294,6 +294,7 @@ class FemaleRabbit(Agent):
         for agent, dist in in_proximity:
             if dist < closest and agent.died_time == 0:
                 self.move = agent.move + Vector2((random.uniform(-0.2, 0.2), random.uniform(-0.2, 0.2)))
+                print(agent.move)
         self.move *= 0.9
         return self.move
 ####################          ####################       #############                  ###############################
@@ -314,18 +315,18 @@ class FemaleRabbit(Agent):
         
 
         # Rabbit eating grass -> replenish energy
-        self.energy_bar -= 0.1
-        if self.energy_bar <= 0:
-            self.kill()
+        # self.energy_bar -= 0.1
+        # if self.energy_bar <= 0:
+        #     self.kill()
         in_proximity = self.in_proximity_accuracy().filter_kind(Grass)
         for agent, _ in in_proximity:
             if agent.alive():
                 self.reproduce()
                 agent.kill()
                 agent.change_image(1)
-                self.energy_bar += 10
-                if self.energy_bar >= 60:
-                    self.energy_bar = 60
+                # self.energy_bar += 10
+                # if self.energy_bar >= 60:
+                #     self.energy_bar = 60
                 
         # Random chance of death as age increases, higher chance of death as age increases      
         if random.random() < death_probability:
@@ -349,9 +350,9 @@ class FemaleRabbit(Agent):
         ### NEW FROM GRASSFOXKING.py
         if self.in_proximity_accuracy().filter_kind(MaleFox).count() > 0 or self.in_proximity_accuracy().filter_kind(FemaleFox).count() > 0:
             self.running_away()
-        else:
-            self.hoppity()
-            self.eating()
+        # else:
+        #     self.hoppity()
+        #     self.eating()
 
 
 class MaleFox(Agent):
@@ -359,7 +360,7 @@ class MaleFox(Agent):
         super().__init__(*args, **kwargs)
         self.reproduction_timer = 0  # Initialize the timer
         Grass.agents.append(self)
-        self.energy_bar = 50
+        #self.energy_bar = 50
         self.died_time = 0
         too_full_threshold = 80
 
@@ -375,25 +376,31 @@ class MaleFox(Agent):
                     self.energy_bar = 50 # no inheriting the rabbit energy
                     agent.kill()
                     self.reproduce()
+        
+        in_proximity2 = self.in_proximity_accuracy().filter_kind(MaleRabbit) or self.in_proximity_accuracy().filter_kind(FemaleRabbit)
+        for agent, _ in in_proximity2:
+            if agent.alive():
+                agent.kill()
+                self.reproduce()
     
-    def too_full(self):
-        if self.energy_bar > too_full_threshold:
-            pass
+    # def too_full(self):
+    #     if self.energy_bar > too_full_threshold:
+    #         pass
 
-    def dying_fox(self):
-        if self.energy_bar < 0:
-            self.move = Vector2((0,-1))
-            self.change_image(1)
-            self.died_time += 0.1
-        if self.died_time > 0:
-            self.died_time += 0.1
-        if self.died_time % 2 > 1 and self.died_time != 0:
-            self.change_image(2)
-        else:
-            if self.died_time != 0:
-                self.change_image(1)
-        if self.died_time > 30:
-            self.kill()
+    # def dying_fox(self):
+    #     if self.energy_bar < 0:
+    #         self.move = Vector2((0,-1))
+    #         self.change_image(1)
+    #         self.died_time += 0.1
+    #     if self.died_time > 0:
+    #         self.died_time += 0.1
+    #     if self.died_time % 2 > 1 and self.died_time != 0:
+    #         self.change_image(2)
+    #     else:
+    #         if self.died_time != 0:
+    #             self.change_image(1)
+    #     if self.died_time > 30:
+    #         self.kill()
 #######################################################
 
 
@@ -403,8 +410,8 @@ class MaleFox(Agent):
 
 ############# FOXKING ##########################
         self.hunting_fox()
-        self.energy_bar -= 0.1
-        self.dying_fox()
+        #self.energy_bar -= 0.1
+        #self.dying_fox()
 ###################################################
         # Asexual reproduction, if Fox collide with rabbit -> Kill rabbit + extra fox
         in_proximity = self.in_proximity_accuracy().filter_kind(MaleRabbit) or self.in_proximity_accuracy().filter_kind(FemaleRabbit)
@@ -449,28 +456,34 @@ class FemaleFox(Agent):
                     self.move = (agent.pos - self.pos).normalize() * 1.05
                     closest = dist
                 if agent.alive() and dist < 10:
-                    self.energy_bar = 50 # no inheriting the rabbit energy
+                    #self.energy_bar = 50 # no inheriting the rabbit energy
                     agent.kill()
                     self.reproduce()
-    
-    def too_full(self):
-        if self.energy_bar > too_full_threshold:
-            pass
 
-    def dying_fox(self):
-        if self.energy_bar < 0:
-            self.move = Vector2((0,-1))
-            self.change_image(1)
-            self.died_time += 0.1
-        if self.died_time > 0:
-            self.died_time += 0.1
-        if self.died_time % 2 > 1 and self.died_time != 0:
-            self.change_image(2)
-        else:
-            if self.died_time != 0:
-                self.change_image(1)
-        if self.died_time > 30:
-            self.kill()
+        in_proximity2 = self.in_proximity_accuracy().filter_kind(MaleRabbit) or self.in_proximity_accuracy().filter_kind(FemaleRabbit)
+        for agent, _ in in_proximity2:
+            if agent.alive():
+                agent.kill()
+                self.reproduce()
+    
+    # def too_full(self):
+    #     if self.energy_bar > too_full_threshold:
+    #         pass
+
+    # def dying_fox(self):
+    #     if self.energy_bar < 0:
+    #         self.move = Vector2((0,-1))
+    #         self.change_image(1)
+    #         self.died_time += 0.1
+    #     if self.died_time > 0:
+    #         self.died_time += 0.1
+    #     if self.died_time % 2 > 1 and self.died_time != 0:
+    #         self.change_image(2)
+    #     else:
+    #         if self.died_time != 0:
+    #             self.change_image(1)
+    #     if self.died_time > 30:
+    #         self.kill()
 #######################################################
 
 
@@ -480,15 +493,15 @@ class FemaleFox(Agent):
 
 ############# FOXKING ##########################
         self.hunting_fox()
-        self.energy_bar -= 0.1
-        self.dying_fox()
+        #self.energy_bar -= 0.1
+        # self.dying_fox()
 ###################################################
         # Asexual reproduction, if Fox collide with rabbit -> Kill rabbit + extra fox
-        in_proximity = self.in_proximity_accuracy().filter_kind(MaleRabbit) or self.in_proximity_accuracy().filter_kind(FemaleRabbit)
-        for agent, _ in in_proximity:
-            if agent.alive():
-                agent.kill()
-                self.reproduce()
+        # in_proximity = self.in_proximity_accuracy().filter_kind(MaleRabbit) or self.in_proximity_accuracy().filter_kind(FemaleRabbit)
+        # for agent, _ in in_proximity:
+        #     if agent.alive():
+        #         agent.kill()
+        #         self.reproduce()
 
         # Random probability of fox death
         ### Play with param
@@ -506,41 +519,24 @@ class FemaleFox(Agent):
                         self.reproduction_timer = 0  # Reset the timer after reproduction
         ###########################################################################
 
-
-male_rabbit_images = ['assi2/images/rabbit.png']
-female_rabbit_images = ['assi2/images/female_rabbit.png']
-male_fox_images = ['assi2/images/fox.png']
-female_fox_images = ['assi2/images/female_fox.png']
-                
-
+  
 df = (
     Simulation(Config(
         image_rotation = True,
-        radius = 30, # Radius if which agents are in proximity
+        radius = 25, # Radius if which agents are in proximity
         #duration = 60 * 60, # Run simulation + present graphs over a 60 seconds time frame, 60 frames per second
-        seed = 1,
+        seed = 2
     ))
-    #.batch_spawn_agents(35, Rabbit, images=['assi2/images/rabbit.png'])
-    #.batch_spawn_agents(25, Fox, images=['assi2/images/fox.png'])
-    #.batch_spawn_agents(15, Grass, images=['assi2/images/grass1.png', 'assi2/images/grass2.png', 'assi2/images/grass3.png'])
-    ### UNCOMMENT THE FOLLOWING TO IMPLEMENT GENDER SPECIFIC >>>>
     .batch_spawn_agents(30, MaleRabbit, images=['assi2/images/rabbit.png'])
     .batch_spawn_agents(30, FemaleRabbit, images=['assi2/images/female_rabbit.png'])
     .batch_spawn_agents(30, MaleFox, images=['assi2/images/fox.png', 'assi2/images/dead_fox1.png', 'assi2/images/dead_fox2.png'])
     .batch_spawn_agents(30, FemaleFox, images=['assi2/images/female_fox.png', 'assi2/images/dead_fox1.png', 'assi2/images/dead_fox2.png'])
     .batch_spawn_agents(15, Grass, images=['assi2/images/grass1.png', 'assi2/images/grass2.png', 'assi2/images/grass3.png', 'assi2/images/dead_grass.png'])
-    #.batch_spawn_agents(1, DeathCount, images=['assi2/images/bird.png'])
     .run()
     .snapshots.groupby(['frame','Agent Type']) # Initialize dataframe
-    #.groupby(['frame','id', 'Agent Type'])
-    #.groupby(['frame','Agent Type'])
     .agg(pl.count('id').alias('Population Count'))
-    #.agg(pl.count('Fox Gender').alias('Fox Gender'))
-    #.agg(pl.count('Rabbit Gender').alias('Rabbit Gender'))
-    #.agg(pl.count('Agent Type').alias('id'))
     .sort(['frame', 'Agent Type'])
 )
 print(df) # Print dataframe
-# Plot df
 plot = sns.relplot(x=df['frame'], y=df['Population Count'], hue=df['Agent Type'], kind='line')
 plot.savefig('assi2/Graphs/Test.png', dpi=600)

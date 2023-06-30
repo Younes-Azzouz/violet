@@ -135,8 +135,8 @@ class Rabbit(Agent):
         closest = 500
         for agent, dist in in_proximity:
             if dist < closest and agent.died_time == 0:
-                #self.move = (self.pos - agent.pos).normalize()
-                self.move = agent.move + Vector2((random.uniform(-0.2, 0.2), random.uniform(-0.2, 0.2)))
+                self.move.x = (self.move.x + (agent.pos - self.pos).normalize().x * -1) / 2
+                self.move.y = (self.move.y + (self.pos - agent.pos).normalize().y) / 2
                 closest = dist
         self.move *= 0.9
 
@@ -183,23 +183,21 @@ class Fox(Agent):
         self.birth_time = time.time() 
         too_full_threshold = 80
 
-    def hunting_fox(self):
+    def hunting_fox(self, in_proximity_rabbits, in_proximity_foxes):
         if self.died_time == 0:
-            in_proximity = self.in_proximity_accuracy().filter_kind(Rabbit)
             closest = 500
-            for agent, dist in in_proximity:
+            for agent, dist in in_proximity_rabbits:
                 if dist < closest:
-                    self.move = (agent.pos - self.pos).normalize() * 1.05
+                    self.move = (agent.pos - self.pos).normalize() * 1.258
                     closest = dist
-                if agent.alive() and dist < 25:
-                    self.energy_bar = 50 # no inheriting the rabbit energy
+                if agent.alive() and dist < 10: # and len(in_proximity_foxes) < 3:
+                    self.energy_bar = 75 # no inheriting the rabbit energy
+                    self.hunt_cycle = 0
                     agent.kill()
-                    self.reproduce()
+                    self.reproduce().move = Vector2((random.uniform(-1, 1), random.uniform(-1, 1))).normalize()
+                    self.move = Vector2((random.uniform(-1, 1), random.uniform(-1, 1))).normalize()
 
     
-    def too_full(self):
-        if self.energy_bar > too_full_threshold:
-            pass
 
     def dying_fox(self):
         if self.energy_bar < 0:
@@ -213,13 +211,17 @@ class Fox(Agent):
         else:
             if self.died_time != 0:
                 self.change_image(1)
-        if self.died_time > 30:
+        if self.died_time > 10:
             self.kill()
 
 
     def update(self):
         self.save_data('Agent Type', 'Fox' + self.gender)
-        self.hunting_fox()
+
+        in_proximity_rabbits = list(self.in_proximity_accuracy().filter_kind(Rabbit))
+        in_proximity_foxes = list(self.in_proximity_accuracy().filter_kind(Fox))
+
+        self.hunting_fox(in_proximity_rabbits, in_proximity_foxes)
         self.energy_bar -= 0.1
         self.dying_fox()
 
@@ -229,7 +231,7 @@ class Fox(Agent):
         
         # Random chance of death as age increases, higher chance of death as age increases      
         if random.random() < death_probability:
-            self.kill()
+            self.energy_bar = 0
             return
 
                 ##### Sexual Reproduction #####
@@ -243,21 +245,24 @@ class Fox(Agent):
                         self.reproduction_timer = 0  # Reset the timer after reproduction
 
 
-df = (
-    Simulation(Config(
-        image_rotation = True,
-        radius = 30, # Radius if which agents are in proximity
-        duration = 300 * 60, # Run simulation + present graphs over a 60 seconds time frame, 60 frames per second (SET TO 5 MINUTES)
-        seed = 1,
-    ))
-    .batch_spawn_agents(100, Rabbit, images=['assi2/images/rabbit.png'])
-    .batch_spawn_agents(100, Rabbit, images=['assi2/images/female_rabbit.png'])
-    .batch_spawn_agents(10, Fox, images=['assi2/images/fox.png', 'assi2/images/dead_fox1.png', 'assi2/images/dead_fox2.png'])
-    .batch_spawn_agents(10, Fox, images=['assi2/images/female_fox.png', 'assi2/images/dead_fox1.png', 'assi2/images/dead_fox2.png'])
-    .batch_spawn_agents(200, Grass, images=['assi2/images/grass1.png', 'assi2/images/grass2.png', 'assi2/images/grass3.png', 'assi2/images/dead_grass.png'])
-    .run()).snapshots.groupby(['frame','Agent Type']).agg(pl.count('id').alias('Population Count')).sort(['frame', 'Agent Type'])
+for i in range(20):
 
-print(df)
-plot = sns.relplot(x=df['frame'], y=df['Population Count'], hue=df['Agent Type'], kind='line')
-plot.savefig('assi2/Graphs/Presentation(1).png', dpi=600)
-df.write_csv('assi2/CSV Graphs/Test.csv')
+    df = (
+        Simulation(Config(
+            image_rotation = True,
+            radius = 30, # Radius if which agents are in proximity
+            duration = 120 * 60,  # Run simulation + present graphs over a 60 seconds time frame, 60 frames per second (SET TO 2 MINUTES)
+            seed = i,
+        ))
+        .batch_spawn_agents(100, Rabbit, images=['assi2/images/rabbit.png'])
+        .batch_spawn_agents(100, Rabbit, images=['assi2/images/female_rabbit.png'])
+        .batch_spawn_agents(20, Fox, images=['assi2/images/fox.png', 'assi2/images/dead_fox1.png', 'assi2/images/dead_fox2.png'])
+        .batch_spawn_agents(200, Grass, images=['assi2/images/grass1.png', 'assi2/images/grass2.png', 'assi2/images/grass3.png', 'assi2/images/dead_grass.png'])
+        .run()).snapshots.groupby(['frame','Agent Type']).agg(pl.count('id').alias('Population Count')).sort(['frame', 'Agent Type'])
+
+    print(df)
+    plot = sns.relplot(x=df['frame'], y=df['Population Count'], hue=df['Agent Type'], kind='line')
+    plot.savefig(f'assi2/Graphs/Seed{i}_pop_2min.png', dpi=600)
+    df.write_csv(f'assi2/CSV Graphs/Seed{i}_pop_2min.csv')
+
+

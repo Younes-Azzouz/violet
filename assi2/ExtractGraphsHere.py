@@ -260,3 +260,4 @@ df = (
 print(df)
 plot = sns.relplot(x=df['frame'], y=df['Population Count'], hue=df['Agent Type'], kind='line')
 plot.savefig('assi2/Graphs/Presentation(1).png', dpi=600)
+df.write_csv('assi2/CSV Graphs/Test.csv')

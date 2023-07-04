@@ -387,7 +387,7 @@ df = (
     Simulation(Config(
         image_rotation = True,
         radius = 50, # Radius if which agents are in proximity
-        duration = 300 * 60, # Run simulation + present graphs over a 60 seconds time frame, 60 frames per second
+        duration = 10 * 60, # Run simulation + present graphs over a 60 seconds time frame, 60 frames per second
         seed = 500,
     ))
     #.batch_spawn_agents(35, Rabbit, images=['assi2/images/rabbit.png'])

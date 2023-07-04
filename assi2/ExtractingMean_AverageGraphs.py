@@ -28,9 +28,9 @@ import matplotlib.pyplot as plt
 # Plotting Everything in one:
 
 # CHOOSE ONE:
-#file_paths = [f'assi2\CSV Graphs\Seed{i}_pop_2min.csv' for i in range(20)]
+file_paths = [f'assi2\CSV Graphs\Seed{i}_pop_2min.csv' for i in range(20)]
 
-file_paths = [f'assi2\CSV Graphs\Seed{i}_pop_2min_no-age.csv' for i in range(20)]
+#file_paths = [f'assi2\CSV Graphs\Seed{i}_pop_2min_no-age.csv' for i in range(20)]
 
 
 data_frames = []
@@ -94,4 +94,3 @@ for ag in agents_save:
 
     plt.legend()
     plt.show()
-    plt.savefig(f'{ag}_no-age.png')

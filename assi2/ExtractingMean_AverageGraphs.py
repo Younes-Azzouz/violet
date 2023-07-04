@@ -26,9 +26,9 @@ import matplotlib.pyplot as plt
 # # # plt.plot(female_rabbits1['frame'], female_rabbits1['Population Count'], label='Female Rabbits')
 
 # Plotting Everything in one:
-file_paths = """ ['assi2\CSV Graphs\Seed0_pop_2min.csv', 'assi2\CSV Graphs\Seed1_pop_2min.csv', 'assi2\CSV Graphs\Seed2_pop_2min.csv', 'assi2\CSV Graphs\Seed3_pop_2min.csv', 'assi2\CSV Graphs\Seed4_pop_2min.csv', 'assi2\CSV Graphs\Seed5_pop_2min.csv', 'assi2\CSV Graphs\Seed6_pop_2min.csv', 'assi2\CSV Graphs\Seed7_pop_2min.csv', 'assi2\CSV Graphs\Seed8_pop_2min.csv',
-'assi2\CSV Graphs\Seed9_pop_2min.csv', 'assi2\CSV Graphs\Seed10_pop_2min.csv', 'assi2\CSV Graphs\Seed11_pop_2min.csv', 'assi2\CSV Graphs\Seed12_pop_2min.csv', 'assi2\CSV Graphs\Seed13_pop_2min.csv', 'assi2\CSV Graphs\Seed14_pop_2min.csv', 'assi2\CSV Graphs\Seed15_pop_2min.csv', 'assi2\CSV Graphs\Seed16_pop_2min.csv', 'assi2\CSV Graphs\Seed17_pop_2min.csv', 'assi2\CSV Graphs\Seed18_pop_2min.csv',
-'assi2\CSV Graphs\Seed19_pop_2min.csv'] """
+
+# CHOOSE ONE:
+#file_paths = [f'assi2\CSV Graphs\Seed{i}_pop_2min.csv' for i in range(20)]
 
 file_paths = [f'assi2\CSV Graphs\Seed{i}_pop_2min_no-age.csv' for i in range(20)]
 
@@ -39,53 +39,59 @@ for file_path in file_paths:
 
 combined_data = pd.concat(data_frames)
 
-new_row = {'frame': 7200, 'Agent Type': 'Foxfemale', 'Population Count': 0}
-combined_data.iloc[-1] = new_row
 
-# grouped_data = combined_data.groupby(['frame','Agent Type'])['Population Count'].agg(['mean', 'std']).reset_index()
+agents_save = ['Foxfemale', 'Foxmale', 'Rabbitfemale', 'Rabbitmale']
 
-# agent_types = grouped_data['Agent Type'].unique()
+for ag in agents_save:
 
-# for agent_type in agent_types:
-#     agent_data = grouped_data[grouped_data['Agent Type'] == agent_type]
-#     plt.errorbar(agent_data['frame'], agent_data['mean'], yerr=agent_data['std'], label=agent_type)
-##################################
-# Plotting each agent type on its own:
-# agent_type_to_plot = 'Foxfemale' # <<< SPECIFY WHICH AGENT TO PLOT
+    new_row = {'frame': 7200, 'Agent Type': ag, 'Population Count': 0}
+    combined_data.iloc[-1] = new_row
 
-# filtered_data = combined_data[combined_data['Agent Type'] == agent_type_to_plot]
+    # grouped_data = combined_data.groupby(['frame','Agent Type'])['Population Count'].agg(['mean', 'std']).reset_index()
 
-# grouped_data = filtered_data.groupby('frame')['Population Count'].agg(['mean', 'std']).reset_index()
+    # agent_types = grouped_data['Agent Type'].unique()
 
-# # Plot the mean line with error bars representing the standard deviation
-# plt.errorbar(grouped_data['frame'], grouped_data['mean'], yerr=grouped_data['std'], label=agent_type_to_plot)
+    # for agent_type in agent_types:
+    #     agent_data = grouped_data[grouped_data['Agent Type'] == agent_type]
+    #     plt.errorbar(agent_data['frame'], agent_data['mean'], yerr=agent_data['std'], label=agent_type)
+    ##################################
+    # Plotting each agent type on its own:
+    # agent_type_to_plot = 'Foxfemale' # <<< SPECIFY WHICH AGENT TO PLOT
+
+    # filtered_data = combined_data[combined_data['Agent Type'] == agent_type_to_plot]
+
+    # grouped_data = filtered_data.groupby('frame')['Population Count'].agg(['mean', 'std']).reset_index()
+
+    # # Plot the mean line with error bars representing the standard deviation
+    # plt.errorbar(grouped_data['frame'], grouped_data['mean'], yerr=grouped_data['std'], label=agent_type_to_plot)
 
 
 
 
-# Specify the agent type you want to plot
-agent_type_to_plot = 'Foxfemale'
+    # Specify the agent type you want to plot
+    agent_type_to_plot = ag
 
-# Filter the data for the specified agent type
-filtered_data = combined_data[combined_data['Agent Type'] == agent_type_to_plot]
+    # Filter the data for the specified agent type
+    filtered_data = combined_data[combined_data['Agent Type'] == agent_type_to_plot]
 
-# Group the filtered data by 'Frames' and calculate the mean and standard deviation
-grouped_data = filtered_data.groupby('frame')['Population Count'].agg(['mean', 'std']).reset_index()
+    # Group the filtered data by 'Frames' and calculate the mean and standard deviation
+    grouped_data = filtered_data.groupby('frame')['Population Count'].agg(['mean', 'std']).reset_index()
 
-# Calculate the mean for the specified agent type at each frame
-mean_values = grouped_data['mean'].values
+    # Calculate the mean for the specified agent type at each frame
+    mean_values = grouped_data['mean'].values
 
-# Scale the mean values to make the line more visible
-mean_scaled = mean_values * 1.5  # Adjust the scaling factor as needed
+    # Scale the mean values to make the line more visible
+    mean_scaled = mean_values * 1.5  # Adjust the scaling factor as needed
 
-# Plot the individual agent type line
-plt.errorbar(grouped_data['frame'], grouped_data['mean'], yerr=grouped_data['std'], label=agent_type_to_plot)
+    # Plot the individual agent type line
+    plt.errorbar(grouped_data['frame'], grouped_data['mean'], yerr=grouped_data['std'], label=agent_type_to_plot)
 
-# Plot the mean line for the specified agent type as a fluctuating line
-plt.plot(grouped_data['frame'], mean_values, color='red', linewidth= 4, label='Mean of Agent Type')
+    # Plot the mean line for the specified agent type as a fluctuating line
+    plt.plot(grouped_data['frame'], mean_values, color='red', linewidth= 4, label=f'Mean of {ag}')
 
-plt.xlabel('Frames')
-plt.ylabel('Population count')
+    plt.xlabel('Frames')
+    plt.ylabel('Population count')
 
-plt.legend()
-plt.show()
+    plt.legend()
+    plt.show()
+    plt.savefig(f'{ag}_no-age.png')

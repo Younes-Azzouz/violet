@@ -26,15 +26,21 @@ import matplotlib.pyplot as plt
 # # # plt.plot(female_rabbits1['frame'], female_rabbits1['Population Count'], label='Female Rabbits')
 
 # Plotting Everything in one:
-file_paths = ['assi2\CSV Graphs\Seed0_pop_2min.csv', 'assi2\CSV Graphs\Seed1_pop_2min.csv', 'assi2\CSV Graphs\Seed2_pop_2min.csv', 'assi2\CSV Graphs\Seed3_pop_2min.csv', 'assi2\CSV Graphs\Seed4_pop_2min.csv', 'assi2\CSV Graphs\Seed5_pop_2min.csv', 'assi2\CSV Graphs\Seed6_pop_2min.csv', 'assi2\CSV Graphs\Seed7_pop_2min.csv', 'assi2\CSV Graphs\Seed8_pop_2min.csv',
+file_paths = """ ['assi2\CSV Graphs\Seed0_pop_2min.csv', 'assi2\CSV Graphs\Seed1_pop_2min.csv', 'assi2\CSV Graphs\Seed2_pop_2min.csv', 'assi2\CSV Graphs\Seed3_pop_2min.csv', 'assi2\CSV Graphs\Seed4_pop_2min.csv', 'assi2\CSV Graphs\Seed5_pop_2min.csv', 'assi2\CSV Graphs\Seed6_pop_2min.csv', 'assi2\CSV Graphs\Seed7_pop_2min.csv', 'assi2\CSV Graphs\Seed8_pop_2min.csv',
 'assi2\CSV Graphs\Seed9_pop_2min.csv', 'assi2\CSV Graphs\Seed10_pop_2min.csv', 'assi2\CSV Graphs\Seed11_pop_2min.csv', 'assi2\CSV Graphs\Seed12_pop_2min.csv', 'assi2\CSV Graphs\Seed13_pop_2min.csv', 'assi2\CSV Graphs\Seed14_pop_2min.csv', 'assi2\CSV Graphs\Seed15_pop_2min.csv', 'assi2\CSV Graphs\Seed16_pop_2min.csv', 'assi2\CSV Graphs\Seed17_pop_2min.csv', 'assi2\CSV Graphs\Seed18_pop_2min.csv',
-'assi2\CSV Graphs\Seed19_pop_2min.csv']
+'assi2\CSV Graphs\Seed19_pop_2min.csv'] """
+
+file_paths = [f'assi2\CSV Graphs\Seed{i}_pop_2min_no-age.csv' for i in range(20)]
+
 
 data_frames = []
 for file_path in file_paths:
     data_frames.append(pd.read_csv(file_path))
 
 combined_data = pd.concat(data_frames)
+
+new_row = {'frame': 7200, 'Agent Type': 'Foxfemale', 'Population Count': 0}
+combined_data.iloc[-1] = new_row
 
 # grouped_data = combined_data.groupby(['frame','Agent Type'])['Population Count'].agg(['mean', 'std']).reset_index()
 
